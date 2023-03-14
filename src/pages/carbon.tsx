@@ -200,20 +200,170 @@ export default function Profile() {
      
 <div className="mt-4 w-full px-4 lg:w-1/2 ">
             <div
-              className="p-4 relative max-h-[480px] min-h-[480px] mb-12  flex flex-col  w-full  rounded-xl border border-dashed bg-white "
+              className="p-6 relative max-h-[500px] min-h-[500px] mb-12  flex flex-col  w-full  rounded-xl border border-dashed bg-white "
             >
        
           <h1 className="text-4xl font-bold leading-6 text-gray-900">Carbon Emissions Calculator</h1>
-          
+          <div className='mt-6 mb-5'>
+                  <div
+                    className="mb-5 rounded-md bg-[#4E4C64] py-4 px-8"
+                  >
+                   
+              
+                  <div className="-mx-3 flex flex-wrap">
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-5">
+                        <label
+                          for="from"
+                          
+                          className="mb-2 block text-base font-medium text-white"
+                        >
+                          From
+                        </label>
+                        <input
+                          required
+                          
+                          name="from"
+                          id="from"
+                          placeholder="NYC"
+                          className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
+                        />
+                      </div>
+                    </div>
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-5">
+                        <label
+                          for="to"
+                          className="mb-2 block text-base font-medium text-white"
+                        >
+                        Destination
+                        </label>
+                        <input
+                          name="to"
+                          id="to"
+                          required
+                          
+                          placeholder="POS"
+                          className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
+                        />
+                      </div>
+                      
+                    </div>
+                    <div className="w-full px-3 ">
+                      <div className="mb-5">
+                        <label
+                          for="passengers"
+                          className="mb-2 block text-base font-medium text-white"
+                        >
+                          Passengers
+                        </label>
+                        <input
+                          name="passengers"
+                          id="passengers"
+                          required
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
+                        />
+                      </div>
+                      
+                    </div>
+
+                    <div className="w-full px-3 ">
+                      <div className="mb-5">
+                        <label
+                          for="passengers"
+                          className="mb-2 block text-base font-medium text-white"
+                        >
+                          Flight Class
+                        </label>
+                        <select
+                          name="flightClass"
+                          id="flightClass"
+                          required
+                          className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
+                        >
+                            <option value="unknown">Unknown</option>
+                            <option value="economy">Economy</option>
+                            <option value="business">Business</option>
+                            <option value="firts">First</option>
+
+
+
+                            </select>
+                      </div>
+                      
+                    </div>
+                    <div className="w-full px-3 ">
+                      <div className="mb-5">
+                       
+                      <button 
+                      className="hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
+                    >
+                        Estimate Footprint
+                    </button>
+                      </div>
+                      
+                    </div>
+                  </div>
+                
+                 {/* Place Upload Button Here */}
+                  </div>
+                  
+                  </div>
          </div>
                 </div>
                 <div className="mt-4 w-full px-4 lg:w-1/2 ">
             <div
-              className="p-4 relative max-h-[480px] min-h-[480px] mb-12  flex flex-col  w-full  rounded-xl border border-dashed bg-white "
+              className="p-6 relative max-h-[500px] min-h-[500px] mb-12  flex flex-col  w-full  rounded-xl border border-dashed bg-white "
             >
        
           <h1 className="text-4xl font-bold leading-6 text-gray-900">Carbon Emissions Estimate</h1>
-          
+          <div className="mt-8 flow-root">
+          <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <table className="min-w-full divide-y divide-gray-700">
+                <thead>
+                  <tr>
+                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">
+                      Name
+                    </th>
+                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-white">
+                      Title
+                    </th>
+                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-white">
+                      Email
+                    </th>
+                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-white">
+                      Role
+                    </th>
+                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                      <span className="sr-only">Edit</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {people.map((person) => (
+                    <tr key={person.email}>
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
+                        {person.name}
+                      </td>
+                      <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-300">{person.title}</td>
+                      <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-300">{person.email}</td>
+                      <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-300">{person.role}</td>
+                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                        <a href="#" className="text-indigo-400 hover:text-indigo-300">
+                          Edit<span className="sr-only">, {person.name}</span>
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
          </div>
                 </div>
     </div>
