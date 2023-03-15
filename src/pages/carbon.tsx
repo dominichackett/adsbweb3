@@ -10,6 +10,13 @@ import {
   useAccount 
  
 } from 'wagmi'
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+
+config.autoAddCss = false;
 const people = [
     { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
 ,    { name: 'Lindsay Bill', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
@@ -188,7 +195,7 @@ export default function Profile() {
             
              <section
       id="home"
-      className= " pb-24 pt-24 relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
+      className= " pb-12 pt-24 relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
           <div className="container">
         <div
@@ -270,7 +277,7 @@ export default function Profile() {
                       
                     </div>
 
-                    <div className="w-full px-3 ">
+                    <div className="w-full px-3 md:w-1/2 ">
                       <div className="mb-5">
                         <label
                           for="passengers"
@@ -295,11 +302,31 @@ export default function Profile() {
                       </div>
                       
                     </div>
-                    <div className="w-full px-3 ">
+
+                    <div className="w-full px-3 md:w-1/2">
                       <div className="mb-5">
+                        <label
+                          for="flightDate"
+                          className="mb-2 block text-base font-medium text-white"
+                        >
+                          Date
+                        </label>
+                        <input
+                        disabled={isSaving }
+                         required
+                          type="datetime-local"
+                          name="flightDate"
+                          id="fDate"
+                          className="text-xs w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
+                        />
+                      </div>
+                      
+                    </div>
+                    <div className="w-full px-3 ">
+                      <div className="mb-2">
                        
                       <button 
-                      className="hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
+                      className="mt-5 hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
                     >
                         Estimate Footprint
                     </button>
@@ -320,50 +347,74 @@ export default function Profile() {
             >
        
           <h1 className="text-4xl font-bold leading-6 text-gray-900">Carbon Emissions Estimate</h1>
-          <div className="mt-8 flow-root">
-          <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead>
-                  <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">
-                      Name
-                    </th>
-                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-white">
-                      Title
-                    </th>
-                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-white">
-                      Email
-                    </th>
-                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-white">
-                      Role
-                    </th>
-                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-800">
-                  {people.map((person) => (
-                    <tr key={person.email}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
-                        {person.name}
-                      </td>
-                      <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-300">{person.title}</td>
-                      <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-300">{person.email}</td>
-                      <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-300">{person.role}</td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                        <a href="#" className="text-indigo-400 hover:text-indigo-300">
-                          Edit<span className="sr-only">, {person.name}</span>
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+          <div className='mt-6 mb-5'>
+                  <div
+                    className="mb-2 rounded-md bg-[#4E4C64] py-4 px-8"
+                  >
+                   
+              
+                  <div className="-mx-3 flex flex-wrap">
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-2 flex flex-col">
+                      <h1><span className='text-2xl text-white justify-items-center'><FontAwesomeIcon icon={faEarthAmericas}  /></span></h1>
+                      <span className='text-2xl text-white'> Distance</span><span className='mt-2 text-white'>3000 Km</span>
+                      </div>
+                    </div>
+
+
+                   
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-2 flex flex-col">
+                      <h1><span className='text-2xl text-red justify-items-center'><FontAwesomeIcon icon={faPlaneDeparture}  /></span></h1>
+                      <span className='text-2xl text-white'> Airplane</span><span className='mt-2 text-white'>287.96 Kg</span>
+                      </div>
+                    </div>
+
+
+
+
+                   
+
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-2 flex flex-col">
+                      <h1><span className='text-2xl text-yellow justify-items-center'><FontAwesomeIcon icon={faTrain}  /></span></h1>
+                      <span className='text-2xl text-white'> Train</span><span className='mt-2 text-white'>87.96 Kg</span>
+                      </div>
+                    </div>
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-2 flex flex-col">
+                      <h1><span className='text-2xl text-green justify-items-center'><FontAwesomeIcon icon={faBus}  /></span></h1>
+                      <span className='text-2xl text-white'>Bus</span><span className='mt-2 text-white'>77.96 Kg</span>
+                      </div>
+                    </div>
+                   
+                  
+                    <div className="w-full px-3 md:w-1/2">
+                      <div className="mb-2 flex flex-col">
+                      <h1><span className='text-2xl  justify-items-center text-[#00FF00]'><FontAwesomeIcon icon={faCar}  /></span></h1>
+                      <span className='text-2xl text-white'>Car</span><span className='mt-2 text-white'>33.96 Kg</span>
+                      </div>
+                    </div>
+                  
+                  
+                   
+                    <div className="w-full px-3 ">
+                      <div className="mb-2">
+                       
+                      <button 
+                      className=" mt-4 hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
+                    >
+                        Save Estimate
+                    </button>
+                      </div>
+                      
+                    </div>
+                  </div>
+                
+                 {/* Place Upload Button Here */}
+                  </div>
+                  
+                  </div>
          </div>
                 </div>
     </div>
@@ -372,6 +423,58 @@ export default function Profile() {
         </div>
       </div>
           </section>
+          <ul role="list" className="p-8 mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {people.map((person) => (
+        <li
+          key={person.email}
+          className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
+        >
+          <div className="flex flex-1 flex-col p-8">
+  <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src={'/images/co2green.png'} alt="" />
+  <h3 className="text-lg font-bold text-gray-900">Estimate</h3>
+
+            <h3 className="mt-6 text-sm font-medium text-gray-900">Passengers: 3</h3>
+            <dl className="mt-1 flex flex-grow flex-col justify-between">
+              <dt className="sr-only">Airplane</dt>
+              <dd className="text-sm text-gray-500">Airplane:  287.96 Kg</dd>
+              <dt className="sr-only">Train</dt>
+              <dd className="mt-2 text-sm text-gray-500">Train:  87.96 Kg</dd>
+              <dt className="sr-only">Bus</dt>
+              <dd className="mt-2 text-sm text-gray-500">Bus:  77.96 Kg</dd>
+              <dt className="sr-only">Car</dt>
+              <dd className="mt-2 text-sm text-gray-500">Car:  37.96 Kg</dd>
+              <dt className="sr-only">Role</dt>
+              <dd className="mt-3">
+                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                  12/12/2023
+                </span>
+              </dd>
+            </dl>
+          </div>
+          <div>
+            <div className="-mt-px flex divide-x divide-gray-200">
+              <div className="flex w-0 flex-1">
+                <a
+                  href={`mailto:${person.email}`}
+                  className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                >
+                 NYC
+                </a>
+              </div>
+              <div className="-ml-px flex w-0 flex-1">
+                <a
+                  href={`tel:${person.telephone}`}
+                  className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                >
+                  POS
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  
         
      <Footer/>
      </main>
