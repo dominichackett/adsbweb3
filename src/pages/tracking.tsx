@@ -7,6 +7,7 @@ import { useState ,useRef,useEffect} from 'react';
 import airplaneIcon from '../../public/images/aircraft/A320.svg';
 import AircraftData from '@/components/AircraftData/aircraftdata';
 import  'leaflet-rotatedmarker';
+import SourceButtons from '@/components/SourceButtons/sourcebuttons';
 
 function getColor(altitude:number,onGround:boolean)
 {
@@ -97,6 +98,10 @@ const dataURL = `data:image/svg+xml;base64,${encodedData}`;
     } 
     getImage()
    },[])
+
+   const sourceChanged = (value:any)=>{
+     alert(value)
+   }
   return (
     <>
       <Head>
@@ -119,6 +124,7 @@ const dataURL = `data:image/svg+xml;base64,${encodedData}`;
       className= "  relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
            <div className="container relative">       
+           <SourceButtons sourceChanged={sourceChanged}/>
            <AircraftData />
 
        <MapContainer     zoomControl={false}

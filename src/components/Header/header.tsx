@@ -131,7 +131,7 @@ import Logo from './logo';
                               href="/insurance"
                               className="block rounded py-[10px] px-4 text-sm font-medium text-[#bababa] hover:text-white"
                             >
-                              Flight Delay / Cancellation Insurance
+                              My Flight Insurance
                             </Link>
 
                             <Link
@@ -152,15 +152,17 @@ import Logo from './logo';
       
                           </div>
                         </li>}
+
                         <li className="group relative">
                           <Link
-                            href="/support"
+                            href="/p2pinsurance"
                             className="mx-8 flex py-2 text-base font-semibold text-[#bababa] group-hover:text-white lg:mr-0 lg:ml-8 lg:inline-flex lg:py-6 lg:px-0 xl:ml-12"
                           >
-                            Support
+                            Flight Insurance
                           </Link>
                         </li>
                       
+                       
                            
                     
                       

@@ -10,10 +10,26 @@ import {
   useAccount 
  
 } from 'wagmi'
+function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+  }
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {  faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
+import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+
+config.autoAddCss = false;
+const people = [
+    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Bill', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+
+]
+const tabs = [
+    { name: 'My Policies', href: '#', current: true },
+    { name: 'My Offers', href: '#', current: false },
+   
+  ]
 export default function Profile() {
     const {address} = useAccount()
     const [selectedFile, setSelectedFile] = useState()
@@ -174,7 +190,7 @@ export default function Profile() {
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet"/>   
-     <title>Ads-B Web3 - Live Flight Tracking</title>
+     <title>Ads-B Web3 - My Alerts</title>
         <link rel="icon" href="/favicon.ico" />
         <script src="https://kit.fontawesome.com/dd348bbd0a.js" crossorigin="anonymous"></script>
       </Head>
@@ -186,77 +202,109 @@ export default function Profile() {
             
              <section
       id="home"
-      className= " pb-24 pt-24 relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
+      className= " pb-12 pt-24  z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
-          <div className="container ">
-        <div
-          className="relative  overflow-hidden rounded-xl bg-bg-color"
+          <div className="  flex flex-row min-h-[500px] bg-bg-color rounded-lg border sm:px-6 lg:px-8">
+          
+       <div className='m-3 w-full bg-white rounded-lg border'>
+       <div className="mt-4 ml-4 sm:flex-auto">
+          <h1 className="text-4xl font-bold leading-6 text-gray-900">My Flight Insurance</h1>
+          <p className="mt-4 text-sm text-gray-700">
+            A list of all my Insurance Policies
+          </p>
+        </div>
+        <div>
+      <div className="sm:hidden">
+        <label htmlFor="tabs" className="sr-only">
+          Select a tab
+        </label>
+        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+        <select
+          id="tabs"
+          name="tabs"
+          className="block w-full rounded-md border-gray-300 focus:border-green-500 focus:ring-green-500"
+          defaultValue={tabs.find((tab) => tab.current).name}
         >
-          <form className="p-8 sm:p-10"    onSubmit={ saveProfile}
->
-            <div className="-mx-5 flex flex-wrap xl:-mx-8  flex justify-center items-center">
-              <div className="w-full px-5 lg:w-5/12 xl:px-8  ">
-                <div className="mb-12 lg:mb-0">
-                <div class="mb-8">
-                    <input
-                      type="file"
-                      name="file"
-                      id="file"
-                      class="sr-only"
-                    />
-                    <label
-                      for="file"
-                      class="relative flex h-[480px] min-h-[200px] items-center justify-center rounded-lg border border-dashed border-[#A1A0AE] bg-[#353444] p-12 text-center"
-                    >
-                      <div>
-                        <div class="mb-4 text-center">
-                          <FontAwesomeIcon className= 'text-gray-400 text-6xl' icon={faPlaneDeparture}  width={80} height={80}/>
-                         
-                        </div>
-                        <span
-                          class="mb-2 block text-xl font-semibold text-white"
-                        >
-Upload Flight Schedule Information                        </span>
-                        
-                        <span
-                          class="mb-3 block text-base font-medium text-body-color"
-                        >
-                          Choose a file
-                        </span>
-                        <span
-                          class="inline-flex rounded bg-white py-2 px-5 text-base font-semibold text-black"
-                        >
-                          Browse
-                        </span>
-                      </div>
-                    </label>
-                  </div>
+          {tabs.map((tab) => (
+            <option key={tab.name}>{tab.name}</option>
+          ))}
+        </select>
+      </div>
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex" aria-label="Tabs">
+            {tabs.map((tab) => (
+              <a
+                key={tab.name}
+                href={tab.href}
+                className={classNames(
+                  tab.current
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                  'w-1/4 border-b-2 py-4 px-1 text-center text-sm font-medium'
+                )}
+                aria-current={tab.current ? 'page' : undefined}
+              >
+                {tab.name}
+              </a>
+            ))}
+          </nav>
+          <div className="m-6">
+          <ul role="list" className="p-4 bg-gray-100 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {people.map((person) => (
+        <li
+          key={person.email}
+          className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
+        >
+          <div className="flex flex-1 flex-col p-8">
+            <h1><span className='text-4xl text-green-600 justify-items-center'><FontAwesomeIcon icon={faPlaneDeparture}  /></span></h1>
 
-            
-
-                  <div className="rounded-md bg-[#4E4C64] py-4 px-8">
-                   
-                  <div className="pt-2">
-                     <button
-                     disabled={isLoading || isSaving || !signer}
-                     
-                      className="hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
-                    >
-                        Upload
-                    </button>
-
-                   
-                  </div>                    
-                   
-                  </div>
-                </div>
+            <h3 className="mt-6 text-sm font-medium text-gray-900">{person.name}</h3>
+            <dl className="mt-1 flex flex-grow flex-col justify-between">
+              <dt className="sr-only">Title</dt>
+              <dd className="text-sm text-gray-500">{person.title}</dd>
+              <dt className="sr-only">Role</dt>
+              <dd className="mt-3">
+                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                  {person.role}
+                </span>
+              </dd>
+            </dl>
+          </div>
+          <div>
+            <div className="-mt-px flex divide-x divide-gray-200">
+              <div className="flex w-0 flex-1">
+                <a
+                  href={`mailto:${person.email}`}
+                  className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                >
+                  NYC
+                </a>
               </div>
-              
+              <div className="-ml-px flex w-0 flex-1">
+                <a
+                  href={`tel:${person.telephone}`}
+                  className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                >
+                  POS
+                </a>
+              </div>
             </div>
-          </form>
+          </div>
+        </li>
+      ))}
+    </ul>
+          </div>
         </div>
       </div>
+    </div>
+  )
+       </div>
+    
+      </div>
           </section>
+     
+  
         
      <Footer/>
      </main>

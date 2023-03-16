@@ -10,10 +10,27 @@ import {
   useAccount 
  
 } from 'wagmi'
+function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+  }
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {  faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
+import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+
+config.autoAddCss = false;
+const people = [
+    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Bill', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+
+]
+const tabs = [
+    { name: 'My Account', href: '#', current: false },
+    { name: 'Company', href: '#', current: false },
+    { name: 'Team Members', href: '#', current: true },
+    { name: 'Billing', href: '#', current: false },
+  ]
 export default function Profile() {
     const {address} = useAccount()
     const [selectedFile, setSelectedFile] = useState()
@@ -174,7 +191,7 @@ export default function Profile() {
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet"/>   
-     <title>Ads-B Web3 - Live Flight Tracking</title>
+     <title>Ads-B Web3 - My Alerts</title>
         <link rel="icon" href="/favicon.ico" />
         <script src="https://kit.fontawesome.com/dd348bbd0a.js" crossorigin="anonymous"></script>
       </Head>
@@ -186,77 +203,24 @@ export default function Profile() {
             
              <section
       id="home"
-      className= " pb-24 pt-24 relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
+      className= " pb-12 pt-24  z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
-          <div className="container ">
-        <div
-          className="relative  overflow-hidden rounded-xl bg-bg-color"
-        >
-          <form className="p-8 sm:p-10"    onSubmit={ saveProfile}
->
-            <div className="-mx-5 flex flex-wrap xl:-mx-8  flex justify-center items-center">
-              <div className="w-full px-5 lg:w-5/12 xl:px-8  ">
-                <div className="mb-12 lg:mb-0">
-                <div class="mb-8">
-                    <input
-                      type="file"
-                      name="file"
-                      id="file"
-                      class="sr-only"
-                    />
-                    <label
-                      for="file"
-                      class="relative flex h-[480px] min-h-[200px] items-center justify-center rounded-lg border border-dashed border-[#A1A0AE] bg-[#353444] p-12 text-center"
-                    >
-                      <div>
-                        <div class="mb-4 text-center">
-                          <FontAwesomeIcon className= 'text-gray-400 text-6xl' icon={faPlaneDeparture}  width={80} height={80}/>
-                         
-                        </div>
-                        <span
-                          class="mb-2 block text-xl font-semibold text-white"
-                        >
-Upload Flight Schedule Information                        </span>
-                        
-                        <span
-                          class="mb-3 block text-base font-medium text-body-color"
-                        >
-                          Choose a file
-                        </span>
-                        <span
-                          class="inline-flex rounded bg-white py-2 px-5 text-base font-semibold text-black"
-                        >
-                          Browse
-                        </span>
-                      </div>
-                    </label>
-                  </div>
-
-            
-
-                  <div className="rounded-md bg-[#4E4C64] py-4 px-8">
-                   
-                  <div className="pt-2">
-                     <button
-                     disabled={isLoading || isSaving || !signer}
-                     
-                      className="hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
-                    >
-                        Upload
-                    </button>
-
-                   
-                  </div>                    
-                   
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-          </form>
+          <div className="  flex flex-row min-h-[500px] bg-bg-color rounded-lg border sm:px-6 lg:px-8">
+          
+       <div className='m-3 w-full bg-white rounded-lg border'>
+       <div className="mt-4 ml-4 sm:flex-auto">
+          <h1 className="text-4xl font-bold leading-6 text-gray-900">Flight Insurance</h1>
+          <p className="mt-4 text-sm text-gray-700">
+            A list of Insurance Policies on Offer
+          </p>
         </div>
+      
+       </div>
+      
       </div>
           </section>
+     
+  
         
      <Footer/>
      </main>

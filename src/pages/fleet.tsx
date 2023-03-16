@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import { useState ,useRef,useEffect} from 'react';
 import FleetData from '@/components/AirportData/fleetdata';
 import  'leaflet-rotatedmarker';
+import SourceButtons from '@/components/SourceButtons/sourcebuttons';
 function getColor(altitude:number,onGround:boolean)
 {
     let rgb;
@@ -95,6 +96,9 @@ const dataURL = `data:image/svg+xml;base64,${encodedData}`;
     } 
     getImage()
    },[])
+   const sourceChanged = (value:any)=>{
+    alert(value)
+  }
   return (
     <>
       <Head>
@@ -117,7 +121,9 @@ const dataURL = `data:image/svg+xml;base64,${encodedData}`;
       className= "  relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
 
-<div className="container relative">     
+<div className="container relative">   
+<SourceButtons sourceChanged={sourceChanged}/>
+  
        <FleetData />
        <MapContainer     zoomControl={false}
  center={[10.536421,  -61.311951]} zoom={8} scrollWheelZoom={false}>
