@@ -10,11 +10,12 @@ import {
   useAccount 
  
 } from 'wagmi'
+import CreateOffer from '@/components/CreateOffer/createoffer';
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
+import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture, faMoneyCheckDollar, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
@@ -22,6 +23,12 @@ config.autoAddCss = false;
 const people = [
     { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
 ,    { name: 'Lindsay Bill', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
+,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
 ,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
 
 ]
@@ -38,10 +45,10 @@ export default function Profile() {
     const [isLoading,setIsLoading]  = useState(true)
     const [profileMetada,setProfileMetadata] = useState()
     const { data: signer} = useSigner()
-  
-  
+    const [selectedTab,setSelectedTab] = useState('My Policies')
+    const [openCreateOffer,setOpenCreateOffer] = useState(false)
     
-   
+
     // NOTIFICATIONS functions
       const [notificationTitle, setNotificationTitle] = useState();
       const [notificationDescription, setNotificationDescription] = useState();
@@ -182,6 +189,14 @@ export default function Profile() {
       }
     
     } 
+
+   const createOffer = ()=>{
+    setOpenCreateOffer(true)
+   } 
+
+   const closeCreateOffer = ()=>{
+    setOpenCreateOffer(false)
+   }
      
   return (
     <>
@@ -192,11 +207,9 @@ export default function Profile() {
     <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet"/>   
      <title>Ads-B Web3 - My Alerts</title>
         <link rel="icon" href="/favicon.ico" />
-        <script src="https://kit.fontawesome.com/dd348bbd0a.js" crossorigin="anonymous"></script>
+        <script src="https://kit.fontawesome.com/dd348bbd0a.js" crossOrigin="anonymous"></script>
       </Head>
-      <main 
-       className="bg-black"
-     >
+      <main  className="bg-black">
              <Header/>
            
             
@@ -204,9 +217,9 @@ export default function Profile() {
       id="home"
       className= " pb-12 pt-24  z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
-          <div className="  flex flex-row min-h-[500px] bg-bg-color rounded-lg border sm:px-6 lg:px-8">
+          <div className="container relative  flex flex-row min-h-[500px] bg-bg-color rounded-lg border sm:px-6 lg:px-8">
           
-       <div className='m-3 w-full bg-white rounded-lg border'>
+       <div className=' m-3 w-full bg-white rounded-lg border'>
        <div className="mt-4 ml-4 sm:flex-auto">
           <h1 className="text-4xl font-bold leading-6 text-gray-900">My Flight Insurance</h1>
           <p className="mt-4 text-sm text-gray-700">
@@ -234,22 +247,22 @@ export default function Profile() {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex" aria-label="Tabs">
             {tabs.map((tab) => (
-              <a
+              <button
                 key={tab.name}
-                href={tab.href}
+                onClick={()=> setSelectedTab(tab.name)}
                 className={classNames(
-                  tab.current
+                  tab.name == selectedTab
                     ? 'border-green-500 text-green-600'
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
                   'w-1/4 border-b-2 py-4 px-1 text-center text-sm font-medium'
                 )}
-                aria-current={tab.current ? 'page' : undefined}
+                aria-current={tab.name == selectedTab ? 'page' : undefined}
               >
                 {tab.name}
-              </a>
+              </button>
             ))}
           </nav>
-          <div className="m-6">
+          {selectedTab == 'My Policies'&& <div className="m-6">
           <ul role="list" className="p-4 bg-gray-100 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {people.map((person) => (
         <li
@@ -259,53 +272,99 @@ export default function Profile() {
           <div className="flex flex-1 flex-col p-8">
             <h1><span className='text-4xl text-green-600 justify-items-center'><FontAwesomeIcon icon={faPlaneDeparture}  /></span></h1>
 
-            <h3 className="mt-6 text-sm font-medium text-gray-900">{person.name}</h3>
+            <h3 className="mt-6 text-4xl font-bold text-gray-900">$3000</h3>
             <dl className="mt-1 flex flex-grow flex-col justify-between">
-              <dt className="sr-only">Title</dt>
-              <dd className="text-sm text-gray-500">{person.title}</dd>
-              <dt className="sr-only">Role</dt>
+              <dt className="sr-only">Cost</dt>
+              <dd className="text-sm text-gray-900">Cost: $15</dd>
+              <dt className="sr-only">Date</dt>
               <dd className="mt-3">
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                  {person.role}
+                  12/12/2022
                 </span>
               </dd>
+              <dd className="text-sm text-gray-900">Status: Active</dd>
+
             </dl>
           </div>
           <div>
             <div className="-mt-px flex divide-x divide-gray-200">
               <div className="flex w-0 flex-1">
-                <a
-                  href={`mailto:${person.email}`}
+                <span
                   className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
                   NYC
-                </a>
+                </span>
               </div>
               <div className="-ml-px flex w-0 flex-1">
-                <a
-                  href={`tel:${person.telephone}`}
+                <span
                   className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
                   POS
-                </a>
+                </span>
               </div>
             </div>
           </div>
         </li>
       ))}
     </ul>
+          </div>}
+
+          {selectedTab == 'My Offers'&& <div className="m-6">
+            <button     
+                              onClick={createOffer}
+           
+                  className="mr-5 mb-5 inline-flex items-center justify-center rounded-md border-2 border-primary bg-primary py-3 px-7 text-base font-semibold text-white transition-all hover:bg-opacity-90"
+                  >Create Offer</button>
+          <ul role="list" className="p-4 bg-gray-100 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {people.map((person) => (
+        <li
+          key={person.email}
+          className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
+        >
+          <div className="flex flex-1 flex-col p-8">
+            <h1><span className='text-4xl text-green-600 justify-items-center'><FontAwesomeIcon icon={faMoneyCheckDollar}  /></span></h1>
+
+            <h3 className="mt-6 text-4xl font-bold text-gray-900">$3000</h3>
+            <dl className="mt-1 flex flex-grow flex-col justify-between">
+              <dt className="sr-only">Cost</dt>
+              <dd className="text-sm text-gray-900">Cost: $15</dd>
+              <dt className="sr-only">Date</dt>
+              <dd className="mt-3">
+                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                  12/12/2022
+                </span>
+              </dd>
+              <dd className="text-sm text-gray-900">Status: Offered</dd>
+
+            </dl>
           </div>
+          <div>
+            <div className="-mt-px flex divide-x divide-gray-200">
+              
+              <div className="-ml-px flex w-0 flex-1">
+                <span
+                  className="cursor-pointer relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                >
+                  <FontAwesomeIcon icon={faTrash}  /> DELETE
+                </span>
+              </div>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+          </div>}
         </div>
       </div>
     </div>
-  )
+  
        </div>
     
       </div>
           </section>
      
   
-        
+        <CreateOffer open={openCreateOffer} setOpen={closeCreateOffer}/>
      <Footer/>
      </main>
      </>

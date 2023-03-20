@@ -1,0 +1,16 @@
+{
+  "name": "feeder",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "ADS-B Feeder For Ads-b Web3 Ethglobal Scaling ETH 2023",
+  "main": "index.js",
+  "author": "Dominic Leon Hackett",
+  "license": "MIT",
+  "dependencies": {
+    "@polybase/client": "^0.3.36",
+    "axios": "^1.3.4",
+    "dotenv": "^16.0.3",
+    "ethers": "5.4",
+    "http": "^0.0.1-security"
+  }
+}

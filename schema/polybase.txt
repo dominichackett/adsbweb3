@@ -1,0 +1,737 @@
+// This is an example collection definition.
+// You should edit it for your use case.
+
+// The language (Polylang) is similar to JavaScript,
+// but semi-colons are mandatory.
+
+// The `collection` keyword defines a named collection.
+// Collection properties define the "columns" in a record.
+
+// @`public` means that the collection is public, anyone can view and read
+// the records in the collection. You can still implement rules on who can 
+// edit the data by defining functions on the collection and checking the public key.
+
+@public
+collection User {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+  // A mandatory property
+  name: string; 
+
+  // An optional property denoted with ?
+  age?: number; 
+
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setName (name: string) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.name = name;
+  }
+}
+
+//Collection: Airport
+//Description: This stores airport information
+@public
+collection Airport {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+  ident:string;
+  type:string;
+  name: string;
+  lattitude:number;
+  longitude:number;
+  elevation:number;
+  continent:string;
+  iso_country:string;
+  iso_region:string;
+  municipality:string;
+  scheduled:boolean;
+  gps_code:string;
+  iata_code:string;
+  local_code:string;
+  link:string;
+  wikipedia:string;
+  
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,ident:string,
+  type:string,
+  name: string,
+  lattitude:number,
+  longitude:number,
+  elevation:number,
+  continent:string,
+  iso_country:string,
+  iso_region:string,
+  municipality:string,
+  scheduled:boolean,
+  gps_code:string,
+  iata_code:string,
+  local_code:string,
+  link:string,
+  wikipedia:string) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+  this.id = id;
+  this.ident = ident;
+  this.type = type;
+  this.name= name;
+  this.lattitude=lattitude;
+  this.longitude=longitude;
+  this.elevation=elevation;
+  this.continent=continent;
+  this.iso_country=iso_country;
+  this.iso_region=iso_region;
+  this.municipality=municipality;
+  this.scheduled=scheduled;
+  this.gps_code=gps_code;
+  this.iata_code=iata_code;
+  this.local_code=local_code;
+  this.link=link;
+  this.wikipedia=wikipedia;  
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setAirport (name: string,ident:string,
+  type:string,
+  name: string,
+  lattitude:number,
+  longitude:number,
+  elevation:number,
+  continent:string,
+  iso_country:string,
+  iso_region:string,
+  municipality:string,
+  scheduled:boolean,
+  gps_code:string,
+  iata_code:string,
+  local_code:string,
+  link:string,
+  wikipedia:string) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+     this.ident = ident;
+  this.type = type;
+  this.name= name;
+  this.lattitude=lattitude;
+  this.longitude=longitude;
+  this.elevation=elevation;
+  this.continent=continent;
+  this.iso_country=iso_country;
+  this.iso_region=iso_region;
+  this.municipality=municipality;
+  this.scheduled=scheduled;
+  this.gps_code=gps_code;
+  this.iata_code=iata_code;
+  this.local_code=local_code;
+  this.link=link;
+ 
+  }
+}
+
+
+//Collection: Country
+//Description: This stores country information
+@public
+collection Country {
+  // `id` is unique and required on all collections
+  id: string;
+  code:string;
+  name:string;
+  continent:string;
+  wikipedia:string;
+  keywords:string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,code:string,
+  name:string,
+  continent:string,
+  wikipedia:string,
+  keywords:string
+) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    this.name = name;
+    this.continent = continent;
+    this.wikipedia = wikipedia;
+    this.keywords = keywords;
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setCountry (name: string,code:string,
+  name:string,
+  continent:string,
+  wikipedia:string,
+  keywords:string
+) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.name = name;
+    this.continent = continent;
+    this.wikipedia = wikipedia;
+    this.keywords = keywords;
+  }
+}
+
+
+
+//Collection: Aircraft
+//Description: This stores aircraft information
+@public
+collection Aircraft {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+  name: string; 
+  reg:string;
+  manufacturer:string;
+  model:string;
+  modelCode:string;
+  icao:string;
+  iata:string;
+  owner:string;
+  operator:string;
+  callsign:string;
+  category:string;
+  
+  
+ 
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setAircraft ( name: string, 
+  reg:string,
+  manufacturer:string,
+  model:string,
+  modelCode:string,
+  icao:string,
+  iata:string,
+  owner:string,
+  operator:string,
+  callsign:string,
+  category:string
+  ) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.name = name;
+   
+  this.reg=reg;
+  this.manufacturer=manufacturer;
+  this.model=model;
+  this.modelCode=modelCode;
+  this.icao=icao;
+  this.iata=iata;
+  this.owner=owner;
+  this.operator=operator;
+  this.callsign=callsign;
+  this.category=category;
+  
+  }
+}
+
+//Collection: Arrival
+//Description: This stores airport arrival information
+
+@public
+collection Arrival {
+  // `id` is unique and required on all collections
+  id: string;
+  airline_iata:string;
+  flight_iata:string;
+  flight_number:number;
+  dep_iata:string;
+  arr_iata:string;
+  duration:number; //In minutes
+  dep_delayed:number;  //estimated time of flight departure delay (in minutes).
+  arr_delayed:number; //Estimated time of flight arrival delay (in minutes).	
+  status:string;
+  arr_time_ts:number;
+  arr_estimated_ts:number;
+  arr_actual_ts:number;
+  dep_time_ts:number;
+  dep_actual_ts:number;
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+
+
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,airline_iata:string,
+  flight_iata:string,
+  flight_number:number,
+  dep_iata:string,
+  arr_iata:string,
+  duration:number, 
+  dep_delayed:number,  
+  arr_delayed:number, 	
+  status:string,
+  arr_time_ts:number,
+  arr_estimated_ts:number,
+  arr_actual_ts:number,
+  dep_time_ts:number,
+  dep_actual_ts:number) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    this.airline_iata=airline_iata;
+    this.flight_iata=flight_iata;
+    this.flight_number=flight_number;
+    this.dep_iata=dep_iata;
+    this.arr_iata=arr_iata;
+    this.duration=duration; 
+    this.dep_delayed=dep_delayed;  
+    this.arr_delayed=arr_delayed; 	
+    this.status=status;
+    this.arr_time_ts=arr_time_ts;
+    this.arr_estimated_ts=arr_estimated_ts;
+    this.arr_actual_ts=arr_actual_ts;
+    this.dep_time_ts=dep_time_ts;
+   this. dep_actual_ts=dep_actual_ts;
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function updateArrival (airline_iata:string,
+  flight_iata:string,
+  flight_number:number,
+  dep_iata:string,
+  arr_iata:string,
+  duration:number, 
+  dep_delayed:number,  
+  arr_delayed:number, 	
+  status:string,
+  arr_time_ts:number,
+  arr_estimated_ts:number,
+  arr_actual_ts:number,
+  dep_time_ts:number,
+  dep_actual_ts:number) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.airline_iata=airline_iata;
+    this.flight_iata=flight_iata;
+    this.flight_number=flight_number;
+    this.dep_iata=dep_iata;
+    this.arr_iata=arr_iata;
+    this.duration=duration; 
+    this.dep_delayed=dep_delayed;  
+    this.arr_delayed=arr_delayed; 	
+    this.status=status;
+    this.arr_time_ts=arr_time_ts;
+    this.arr_estimated_ts=arr_estimated_ts;
+    this.arr_actual_ts=arr_actual_ts;
+    this.dep_time_ts=dep_time_ts;
+   this. dep_actual_ts=dep_actual_ts;
+  }
+}
+
+
+//Collection: Departure
+//Description: This stores airport departure information
+
+@public
+collection Departure {
+  // `id` is unique and required on all collections
+  id: string;
+  airline_iata:string;
+  flight_iata:string;
+  flight_number:number;
+  dep_iata:string;
+  arr_iata:string;
+  duration:number; //In minutes
+  dep_delayed:number;  //estimated time of flight departure delay (in minutes).
+  arr_delayed:number; //Estimated time of flight arrival delay (in minutes).	
+  status:string;
+  arr_time_ts:number;
+  arr_estimated_ts:number;
+  arr_actual_ts:number;
+  dep_time_ts:number;
+  dep_actual_ts:number;
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+
+
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,airline_iata:string,
+  flight_iata:string,
+  flight_number:number,
+  dep_iata:string,
+  arr_iata:string,
+  duration:number, 
+  dep_delayed:number,  
+  arr_delayed:number, 	
+  status:string,
+  arr_time_ts:number,
+  arr_estimated_ts:number,
+  arr_actual_ts:number,
+  dep_time_ts:number,
+  dep_actual_ts:number) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    this.airline_iata=airline_iata;
+    this.flight_iata=flight_iata;
+    this.flight_number=flight_number;
+    this.dep_iata=dep_iata;
+    this.arr_iata=arr_iata;
+    this.duration=duration; 
+    this.dep_delayed=dep_delayed;  
+    this.arr_delayed=arr_delayed; 	
+    this.status=status;
+    this.arr_time_ts=arr_time_ts;
+    this.arr_estimated_ts=arr_estimated_ts;
+    this.arr_actual_ts=arr_actual_ts;
+    this.dep_time_ts=dep_time_ts;
+   this. dep_actual_ts=dep_actual_ts;
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function updateDeparture (airline_iata:string,
+  flight_iata:string,
+  flight_number:number,
+  dep_iata:string,
+  arr_iata:string,
+  duration:number, 
+  dep_delayed:number,  
+  arr_delayed:number, 	
+  status:string,
+  arr_time_ts:number,
+  arr_estimated_ts:number,
+  arr_actual_ts:number,
+  dep_time_ts:number,
+  dep_actual_ts:number) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.airline_iata=airline_iata;
+    this.flight_iata=flight_iata;
+    this.flight_number=flight_number;
+    this.dep_iata=dep_iata;
+    this.arr_iata=arr_iata;
+    this.duration=duration; 
+    this.dep_delayed=dep_delayed;  
+    this.arr_delayed=arr_delayed; 	
+    this.status=status;
+    this.arr_time_ts=arr_time_ts;
+    this.arr_estimated_ts=arr_estimated_ts;
+    this.arr_actual_ts=arr_actual_ts;
+    this.dep_time_ts=dep_time_ts;
+   this. dep_actual_ts=dep_actual_ts;
+  }
+}
+
+//Collection: FlightData
+//Description: This stores ADS-B Data from ADS-B receivers 
+
+@public
+collection FlightData {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+ 
+  hex: string; 
+  squawk:string;
+  flight:string;
+  lattitude:number;
+  longitude:number;
+  altitude:number;
+  verticalRate:number;
+  speed:number;
+  heading:number;
+  time:number;
+ 
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,hex: string, 
+  squawk:string,
+  flight:string,
+  lattitude:number,
+  longitude:number,
+  altitude:number,
+  verticalRate:number,
+  speed:number,
+  heading:number,
+  time:number
+ ) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    this.hex= hex; 
+    this.squawk=squawk;
+    this.flight=flight;
+    this.lattitude=lattitude;
+    this.longitude=longitude;
+    this.altitude=altitude;
+    this.verticalRate=verticalRate;
+    this.speed=speed;
+    this.heading=heading;
+    this.time=time;
+ 
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+ 
+}
+
+
+//Collection: FlightAlert
+//Description: This stores flight alert information 
+
+@public
+collection FlightAlert {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+  flight:string;
+  orign:string;
+  destination:string;
+  status:string;
+
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,flight:string,origin:string,destination:string,status:string) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    this.flight = flight;
+    this.origin = origin;
+    this.destination = destination;
+    this.status = status;
+    
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setStatus (name: string,flight:string,origin:string,destination:string,status:string) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.flight = flight;
+    this.origin = origin;
+    this.destination = destination;
+    this.status = status;
+    
+  }
+}
+
+//Collection: Policy
+//Description: This stores insurance policy information
+
+@public
+collection Policy {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+  flight:string;
+  from:string;
+  to:string;
+  arrival_time:number;
+  departure_time:number;
+  coverage:number;
+  cost:number;
+  status:string;
+  date:string;
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,flight:string,
+  from:string,
+  to:string,
+  arrival_time:number,
+  departure_time:number,
+  coverage:number,
+  cost:number,
+  status:string,
+  date:string
+  ) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    this.flight=flight;
+  this.from=from;
+  this.to=to;
+  this.arrival_time=arrival_time;
+  this.departure_time=departure_time;
+  this.coverage=coverage;
+  this.cost=cost;
+  this.status=status;
+  this.date=date;
+  
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setStatus (status: string) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.status = status;
+  }
+}
+
+//Collection: PolicyOffer
+//Description: This stores insurance policy offers information
+
+@public
+collection PolicyOffer {
+  // `id` is unique and required on all collections
+  id: string;
+
+  // We will use a public key to authenticate function
+  // calls later
+  publicKey: PublicKey;
+
+  coverage:number;
+  cost:number;
+  status:string;
+  date:string;
+  // `constructor` is called when a new record is
+  // created, make sure to assign a value to `this.id`
+  constructor (id: string,
+  coverage:number,
+  cost:number,
+  status:string,
+  date:string
+  ) {
+    // `this.id` must be assigned in the constructor
+    // `this.id` must be unique in collection
+    this.id = id;
+    
+  this.coverage=coverage;
+  this.cost=cost;
+  this.status=status;
+  this.date=date;
+  
+    // You can assign the publicKey of the user who is
+    // creating the record, this can then be used to
+    // control permissions for the record (see below)
+    this.publicKey = ctx.publicKey;
+  }
+
+  // You can add your own functions to determine rules
+  // on who can update the records data
+  function setStatus (status: string) {
+    // Check if the caller is the original creator of the record.
+    if (ctx.publicKey != this.publicKey) {
+      error('You are not the creator of this record.');
+    }
+    this.coverage=coverage;
+  this.cost=cost;
+  this.status=status;
+  this.date=date;
+  
+  
+  }
+}
+
+
+

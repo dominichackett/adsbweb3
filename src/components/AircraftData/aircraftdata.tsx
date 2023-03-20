@@ -1,9 +1,26 @@
-export default function AircraftData(){
-  return(       <div className="m-4 p-4 border-2 border-dashed absolute top-0 left-4 z-50  w-1/4 bg-white opacity-50">
+import { useEffect,useState } from "react"
+export default function AircraftData(props:any){
+const [photo,setPhoto] = useState()
+const [photographer,setPhotographer] = useState()
+const [link,setLink] = useState()
+useEffect(()=>{
+   async function getPhoto() {
+    console.log(props.aircraftData.hex)
+    const result = await fetch(`http://localhost:3000/api/photo?hex=${props.aircraftData.hex}`)
+    const data = await result.json()
+    setPhoto(data.photos[0]?.thumbnail_large.src)
+    setPhotographer(data.photos[0]?.photographer)
+    setLink(data.photos[0]?.link)
+    console.log(data.photos[0]?.photographer)
+   }  
+   if(props.aircraftDataOpen==true) 
+   getPhoto()
+},[props.aircraftData])
+  return(      props.aircraftDataOpen==true ?  <div className="m-4 p-4 border-2 border-dashed absolute top-0 left-4 z-50  w-1/4 bg-white opacity-80">
        <div className="flex items-center justify-end">
                      
-                     <button className="p-4">
-                     
+                     <button className="p-4"
+                       onClick={()=>props.open(false)}  >                   
                        <svg
                          width="10"
                          height="10"
@@ -28,20 +45,25 @@ export default function AircraftData(){
                  
                      
                    </div>
-                   <div><img src={ '/images/aircraft/A320.svg'}className=" cursor-pointer relative flex h-[190px] min-h-[50px] w-full items-center justify-center rounded-lg border border-dashed border-[#A1A0AE] bg-[#353444] p-12 text-center"
+                   <div>
+                    <img src={ `${photo ? photo :"/images/airplane.jpg"} `}className=" relative flex max-h-[200px] min-h-[200px]  w-full items-center justify-center rounded-lg border border-dashed border-[#A1A0AE] bg-[#353444] p-2 text-center"
                 />
-                <span className="font-bold">Reg: NMG166</span><div className="font-bold justift-end">Type: Sling TSI Experimental</div>
+                <span className={`${(!photo ? "invisible": "")} mt-2 font-bold flex justify-between text-sm`}><span>Credit:</span> {photographer}</span>
+                <span  className={`${(!photo ? "invisible": "")}  font-bold flex justify-between mb-5`}><a className="text-primary text-sm "  target="_blank" href={`${link}`}>View on Planespotters.net</a></span>
+              
+                <span className="font-bold flex justify-between"><span>Reg:</span> {props?.aircraftData[1]}</span>
+                <div className="font-bold flex  justify-between"><span>Type:</span> Sling TSI Experimental</div>
 </div>
-<div className="font-bold justift-end">Flight: BW1020</div>
-<div className="font-bold justift-end">Hex: BW1020</div>
+<div className="font-bold flex  justify-between"><span>Flight:</span> {props.aircraftData.flight}</div>
+<div className="font-bold flex  justify-between"><span>Hex:</span> {props.aircraftData.hex}</div>
 
-<div className="font-bold justift-end">Squawk: 1045</div>
-<div className="font-bold justift-end">Altittude: 12045</div>
-<div className="font-bold justift-end">Speed: 104</div>
-<div className="font-bold justift-end">Headding: 104</div>
-<div className="font-bold justift-end">Latitue: 1045</div>
-<div className="font-bold justift-end">Longitude: 1045</div>
-<div className="font-bold justift-end">Signal: 14</div>
+<div className="font-bold flex  justify-between"><span>Squawk:</span> {props?.aircraftData.squawk} </div>
+<div className="font-bold flex  justify-between"><span>Altitude:</span> {props?.aircraftData.altitude}</div>
+<div className="font-bold flex  justify-between"><span>Virtical Speed:</span> {props?.aircraftData.verticalRate}</div>
+<div className="font-bold flex  justify-between"><span>Speed:</span> {props?.aircraftData.speed}</div>
+<div className="font-bold flex  justify-between"><span>Headding:</span> {props?.aircraftData.heading}</div>
+<div className="font-bold flex  justify-between"><span>Latitude:</span> {props?.aircraftData.latitude}</div>
+<div className="font-bold flex  justify-between"><span>Longitude:</span> {props?.aircraftData.longitude}</div>
 
 
 
@@ -49,6 +71,6 @@ export default function AircraftData(){
 
 
 </div>
-  
+ : "" 
   )
 }

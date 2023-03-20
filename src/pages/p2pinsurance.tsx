@@ -13,8 +13,10 @@ import {
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
+
+import PurchaseOffer from '@/components/CreateOffer/purchaseoffer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
+import { faMoneyCheckDollar,faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons'
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
@@ -39,7 +41,8 @@ export default function Profile() {
     const [isLoading,setIsLoading]  = useState(true)
     const [profileMetada,setProfileMetadata] = useState()
     const { data: signer} = useSigner()
-  
+    const [openPurchaseOffer,setOpenPurchaseOffer] = useState(false)
+
   
     
    
@@ -183,7 +186,13 @@ export default function Profile() {
       }
     
     } 
-     
+    const purchaseOffer = ()=>{
+        setOpenPurchaseOffer(true)
+       } 
+    
+       const closePurchaseOffer = ()=>{
+        setOpenPurchaseOffer(false)
+       }
   return (
     <>
       <Head>
@@ -205,7 +214,7 @@ export default function Profile() {
       id="home"
       className= " pb-12 pt-24  z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
-          <div className="  flex flex-row min-h-[500px] bg-bg-color rounded-lg border sm:px-6 lg:px-8">
+          <div className="container relative  flex flex-row min-h-[500px] bg-bg-color rounded-lg border sm:px-6 lg:px-8">
           
        <div className='m-3 w-full bg-white rounded-lg border'>
        <div className="mt-4 ml-4 sm:flex-auto">
@@ -214,14 +223,57 @@ export default function Profile() {
             A list of Insurance Policies on Offer
           </p>
         </div>
-      
+         <div className="m-6">
+           
+          <ul role="list" className="p-4 bg-gray-100 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {people.map((person) => (
+        <li
+          key={person.email}
+          className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
+        >
+          <div className="flex flex-1 flex-col p-8">
+            <h1><span className='text-4xl text-green-600 justify-items-center'><FontAwesomeIcon icon={faMoneyCheckDollar}  /></span></h1>
+
+            <h3 className="mt-6 text-4xl font-bold text-gray-900">$3000</h3>
+            <dl className="mt-1 flex flex-grow flex-col justify-between">
+              <dt className="sr-only">Cost</dt>
+              <dd className="text-sm text-gray-900">Cost: $15</dd>
+              <dt className="sr-only">Date</dt>
+              <dd className="mt-3">
+                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                  12/12/2022
+                </span>
+              </dd>
+              <dd className="text-sm text-gray-900">Status: Offered</dd>
+
+            </dl>
+          </div>
+          <div>
+            <div className="-mt-px flex divide-x divide-gray-200">
+              
+              <div className="-ml-px flex w-0 flex-1">
+                <span
+                                onClick={purchaseOffer}
+
+                  className="cursor-pointer relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                >
+                  <FontAwesomeIcon icon={faMoneyBill1Wave}  /> PURCHASE
+                </span>
+              </div>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+          </div>
        </div>
       
       </div>
           </section>
      
   
-        
+          <PurchaseOffer open={openPurchaseOffer} setOpen={closePurchaseOffer}/>
+
      <Footer/>
      </main>
      </>

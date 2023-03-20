@@ -349,7 +349,7 @@ export default function Profile() {
           <h1 className="text-4xl font-bold leading-6 text-gray-900">Carbon Emissions Estimate</h1>
           <div className='mt-6 mb-5'>
                   <div
-                    className="mb-2 rounded-md bg-[#4E4C64] py-4 px-8"
+                    className=" mb-2 rounded-md bg-[#4E4C64] py-4 px-8"
                   >
                    
               
@@ -423,7 +423,7 @@ export default function Profile() {
         </div>
       </div>
           </section>
-          <ul role="list" className="p-8 mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <ul role="list" className="container p-8 mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {people.map((person) => (
         <li
           key={person.email}
@@ -432,17 +432,18 @@ export default function Profile() {
           <div className="flex flex-1 flex-col p-8">
   <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src={'/images/co2green.png'} alt="" />
   <h3 className="text-lg font-bold text-gray-900">Estimate</h3>
+  <h3 className="mt-6 text-sm font-medium text-gray-900">Passengers: 3</h3>
 
-            <h3 className="mt-6 text-sm font-medium text-gray-900">Passengers: 3</h3>
+            <h3 className="mt-6 text-sm font-medium text-gray-900">Distance: 3000 Km</h3>
             <dl className="mt-1 flex flex-grow flex-col justify-between">
               <dt className="sr-only">Airplane</dt>
-              <dd className="text-sm text-gray-500">Airplane:  287.96 Kg</dd>
+              <dd className="text-sm text-gray-500"><FontAwesomeIcon icon={faPlaneDeparture}  /> Airplane:  287.96 Kg</dd>
               <dt className="sr-only">Train</dt>
-              <dd className="mt-2 text-sm text-gray-500">Train:  87.96 Kg</dd>
+              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faTrain}  /> Train:  87.96 Kg</dd>
               <dt className="sr-only">Bus</dt>
-              <dd className="mt-2 text-sm text-gray-500">Bus:  77.96 Kg</dd>
+              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faBus}  /> Bus:  77.96 Kg</dd>
               <dt className="sr-only">Car</dt>
-              <dd className="mt-2 text-sm text-gray-500">Car:  37.96 Kg</dd>
+              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faCar}  /> Car:  37.96 Kg</dd>
               <dt className="sr-only">Role</dt>
               <dd className="mt-3">
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">

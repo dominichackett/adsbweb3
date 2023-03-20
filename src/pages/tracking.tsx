@@ -1,107 +1,117 @@
 import Head from 'next/head'
 import Header from '@/components/Header/header'
 import Footer from '@/components/Footer/footer'
-import { MapContainer, TileLayer,ZoomControl, useMap,Marker,Popup } from 'react-leaflet'
+import { MapContainer, TileLayer,ZoomControl,Marker,useMapEvent } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import { useState ,useRef,useEffect} from 'react';
 import airplaneIcon from '../../public/images/aircraft/A320.svg';
 import AircraftData from '@/components/AircraftData/aircraftdata';
 import  'leaflet-rotatedmarker';
 import SourceButtons from '@/components/SourceButtons/sourcebuttons';
+import { getAW3Data, getOpenSkyData } from '@/components/utils/utils';
+import { element } from '@rainbow-me/rainbowkit/dist/css/reset.css';
+function EventListner(props:any){
+  const map = useMapEvent('moveend', handleMoveEnd);
+  function handleMoveEnd(event:any) {
 
-function getColor(altitude:number,onGround:boolean)
-{
-    let rgb;
-    if (altitude === 0 || onGround === true) {
-        rgb = [50, 50, 50];
-      } else if (altitude > 0 && altitude <= 1000) {
-        rgb = [100, 50, 0];
-      } else if (altitude > 1000 && altitude <= 5000) {
-        rgb = [100, 100, 0];
-      } else if (altitude > 5000 && altitude <= 10000) {
-        rgb = [0, 100, 0];
-      } else if (altitude > 10000 && altitude <= 20000) {
-        rgb = [0, 75, 100];
-      } else if (altitude > 20000 && altitude <= 30000) {
-        rgb = [0, 50, 100];
-      } else if (altitude > 30000 && altitude <= 40000) {
-        rgb = [50, 0, 100];
-      } else if (altitude > 40000 && altitude <= 1000000) {
-        rgb = [100, 0, 0];
-      } else if (altitude > 1000000) {
-        rgb = [100, 100, 100];
-      } else {
-        rgb = [25, 25, 25];
-      }
+    props.handleEvent(event)
 
-       const r = rgb[0] * 2.55;
-        const g = rgb[1] * 2.55;
-        const b = rgb[2] * 2.55;
-        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-      
+  }
+  return null
 }
-export default function Home() {
+export default function Tracking() {
     const markerRef = useRef(null);
-
-
-    
+    const mapRef = useRef(null); // create a ref for the map container
+    const intervalRef = useRef()
+    const [aircraftData,setAircraftData]  = useState()
+    const [aircraftDataOpen,setAircraftDataOpen] = useState(false)
+    const  source= useRef(2)
     const [markers,setMarkers] = useState([])                  
+    const [visibleMarkers,setVisibleMarkers] = useState([])
+    const handleMarkerClick = (e:any,marker:any) => {
+      if (e.target.options.icon.options.className === 'marker-icon my-custom-icon') {
+        // Handle marker click here
+        console.log('Marker clicked!');
+      }
+      //alert(JSON.stringify(marker))
+      setAircraftData(marker)
+      setAircraftDataOpen(true)
+    };
     
-
-   useEffect(()=>{
-      async function getImage(){
-
-        const response = await fetch('http://localhost:3000/images/aircraft/A320.svg');
-        const data = await response.text();
-      console.log(data)
-// Parse the SVG data into an XML document
-const parser = new DOMParser();
-const xmlDoc = parser.parseFromString(data, 'image/svg+xml');
-const svgElement =  xmlDoc.getElementsByTagName('svg')[0]
-const viewBoxElement = svgElement.getAttribute('viewBox')
-svgElement.setAttribute('viewBox',"0 0 80 80")
-// Access the path element and change its fill and stroke attributes
-const gElement = xmlDoc.getElementsByTagName('g')[0];
-const pathElement = gElement.querySelector('path');
-console.log(pathElement)
-const color = getColor(5200,false);
-pathElement.setAttribute('style', `fill:${color};stroke:#000000;stroke-width:1px`);
-//pathElement.setAttribute('stroke', 'red');
-
-// Serialize the modified XML document back to a string
-const serializer = new XMLSerializer();
-const modifiedData = serializer.serializeToString(xmlDoc);
-
-// Create a data URI from the modified SVG data
-const encodedData = btoa(modifiedData);
-const dataURL = `data:image/svg+xml;base64,${encodedData}`;
-
-
-            let pin = []
-            pin.push({
-                position: [10.536421,  -61.311951],
-                rotation:90,
-                icon:  L.icon({
-                    iconUrl:dataURL,
-                    iconSize: [80, 80],
-                    iconAnchor:[40,40],
-                  
-        
-        
-                    className:'custom-icon',
-                   
-                    
-                  })
-      })
-            setMarkers(pin)
-            console.log(pin)
-    } 
-    getImage()
-   },[])
-
+  
    const sourceChanged = (value:any)=>{
-     alert(value)
+     source.current = value
+     setMarkers([])
+     setVisibleMarkers([])
+     getData() 
    }
+
+   const setOpen = (value:any)=>{
+    setAircraftDataOpen(value)
+   }
+
+
+   async function getData(){
+      
+      
+     
+
+    let flights = []
+     if(source.current==1)
+        flights= await getOpenSkyData()
+     else  
+     {
+       try{
+       flights = await getAW3Data() 
+       }catch(error)
+       {
+         
+       } 
+     }
+     // console.log(flights)
+     console.log(source.current)
+     setMarkers(flights)
+   }
+   useEffect(()=>{
+    
+     getData()
+    intervalRef.current =  setInterval(getData,10000) //Call every two minutes
+      // Return a function to clean up the interval on unmount
+    return () => clearInterval(intervalRef.current);
+   },[])
+   
+
+  useEffect(()=>{
+    if(markers && mapRef.current)
+       getVisibleMarkers()
+  },[markers,mapRef])
+  function getVisibleMarkers()
+  {
+    
+    const bounds =mapRef.current.getBounds();
+    const _markers = markers.map(marker => {
+      if(marker?.position)
+      if(bounds.contains(marker.position))
+      return marker
+
+    });
+    setVisibleMarkers(_markers);
+    console.log("Got Markers Initially")
+
+      
+  }   
+   function handleMoveEnd(event:any){
+    const bounds = event.target.getBounds();
+    const _markers = markers.map(marker => {
+      if(marker?.position)
+      if(bounds.contains(marker.position))
+      return marker
+
+    });
+    setVisibleMarkers(_markers);
+    console.log("Got Markers")
+  }
+
   return (
     <>
       <Head>
@@ -125,31 +135,39 @@ const dataURL = `data:image/svg+xml;base64,${encodedData}`;
           >
            <div className="container relative">       
            <SourceButtons sourceChanged={sourceChanged}/>
-           <AircraftData />
+           <AircraftData aircraftData={aircraftData} open={setOpen} aircraftDataOpen={aircraftDataOpen} />
 
-       <MapContainer     zoomControl={false}
- center={[10.536421,  -61.311951]} zoom={8} scrollWheelZoom={false}>
-    
-  <TileLayer
+       <MapContainer ref={mapRef} preferCanvas={true}    zoomControl={false}  
+ center={[10.536421,  -61.311951]} zoom={8} scrollWheelZoom={false}
+onMoveEnd={()=> alert("hello")}
+ 
+ >
+  <EventListner handleEvent={handleMoveEnd} />  
+  <TileLayer 
       className='map-tiles'
 
     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
   />
 
-   {markers.map((marker, index) => (
+   {visibleMarkers.map((marker, index) => {
+    
+    if(marker && index <=5000)
+    return(
         <Marker
           key={index}
           position={marker.position}
           icon={marker.icon}
           rotationAngle={marker.rotation}
-          ref={markerRef}
-          style={{
-            fill: '#00ff00;'
+          eventHandlers={{
+            click: (e) => {
+              handleMarkerClick(e, marker.data);
+            },
           }}
+          
         >
         </Marker>
-      ))}  
+      )})}  
   <ZoomControl position='bottomright' />
 </MapContainer>
       </div>
