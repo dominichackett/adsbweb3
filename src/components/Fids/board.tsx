@@ -6,11 +6,13 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 config.autoAddCss = false;
 
 export default function FIDS(props:any){
-    return(       <div className="m-4 min-h-[770px] p-4 border-2 border-dashed border-white absolute  right-4 z-50  w-2/3  bg-black ">
+    return(    
+      props.fidsDataOpen==true ?    <div className="m-4 min-h-[770px] p-4 border-2 border-dashed border-white absolute  right-4 z-50  w-2/3  bg-black ">
          <div className="flex items-center justify-end">
                        
-                       <button className="p-4">
-                       
+                       <button className="p-4"
+                       onClick={()=>props.open(false)}  >                 
+
                          <svg
                            width="10"
                            height="10"
@@ -130,7 +132,7 @@ export default function FIDS(props:any){
   
   
   
-  </div>
+  </div> : ""
     
     )
   }

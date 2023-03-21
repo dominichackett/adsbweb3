@@ -1,9 +1,26 @@
 import { useEffect,useState } from "react"
+import { Polybase } from "@polybase/client";
+
 export default function AircraftData(props:any){
 const [photo,setPhoto] = useState()
 const [photographer,setPhotographer] = useState()
 const [link,setLink] = useState()
+const [aircraftData,setAircraftData] = useState()
 useEffect(()=>{
+  async function getAircraft(){
+
+    const db = new Polybase({
+      defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+  });
+     const aircraftDataCollection= db.collection("Aircraft");
+     const _aircraftData= await aircraftDataCollection.where("id","==",props.aircraftData.hex).get()
+     console.log(_aircraftData.data)
+     if(_aircraftData.data.length > 0 )
+        setAircraftData(_aircraftData.data[0].data)
+     else
+        setAircraftData(null)   
+  }
+
    async function getPhoto() {
     console.log(props.aircraftData.hex)
     const result = await fetch(`http://localhost:3000/api/photo?hex=${props.aircraftData.hex}`)
@@ -13,8 +30,11 @@ useEffect(()=>{
     setLink(data.photos[0]?.link)
     console.log(data.photos[0]?.photographer)
    }  
-   if(props.aircraftDataOpen==true) 
-   getPhoto()
+   if(props.aircraftDataOpen==true){
+    getPhoto()
+    getAircraft()
+   } 
+   
 },[props.aircraftData])
   return(      props.aircraftDataOpen==true ?  <div className="m-4 p-4 border-2 border-dashed absolute top-0 left-4 z-50  w-1/4 bg-white opacity-80">
        <div className="flex items-center justify-end">
@@ -51,10 +71,12 @@ useEffect(()=>{
                 <span className={`${(!photo ? "invisible": "")} mt-2 font-bold flex justify-between text-sm`}><span>Credit:</span> {photographer}</span>
                 <span  className={`${(!photo ? "invisible": "")}  font-bold flex justify-between mb-5`}><a className="text-primary text-sm "  target="_blank" href={`${link}`}>View on Planespotters.net</a></span>
               
-                <span className="font-bold flex justify-between"><span>Reg:</span> {props?.aircraftData[1]}</span>
-                <div className="font-bold flex  justify-between"><span>Type:</span> Sling TSI Experimental</div>
+                <span className="font-bold flex justify-between"><span>Reg:</span> {aircraftData?.reg}</span>
+                <div className="font-bold flex  justify-between"><span>Type:</span> {aircraftData?.model}</div>
 </div>
 <div className="font-bold flex  justify-between"><span>Flight:</span> {props.aircraftData.flight}</div>
+<div className="font-bold flex  justify-between"><span>Operator:</span> {aircraftData?.operator}</div>
+
 <div className="font-bold flex  justify-between"><span>Hex:</span> {props.aircraftData.hex}</div>
 
 <div className="font-bold flex  justify-between"><span>Squawk:</span> {props?.aircraftData.squawk} </div>
