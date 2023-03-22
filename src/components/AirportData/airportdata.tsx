@@ -1,14 +1,39 @@
 import { Polybase } from "@polybase/client";
 import { useState } from "react";
+import Notification from "../Notification/Notification";
 export default function AirportData(props:any){
+    // NOTIFICATIONS functions
+const [notificationTitle, setNotificationTitle] = useState();
+const [notificationDescription, setNotificationDescription] = useState();
+const [dialogType, setDialogType] = useState(1);
+const [show, setShow] = useState(false);
+const close = async () => {
+  setShow(false);
+};
+
   const db = new Polybase({
     defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
    });    
    const [airportData,setAirportData] = useState()
    const showFIDS = (displayType:number)=>{
     const scheduleDate = document.getElementById("scheduleDate").value;
-    if(scheduleDate == undefined || airportData == null)
+ 
+    if(airportData ==null || airportData == undefined)
+    {
+      setDialogType(2) //Error
+      setNotificationTitle("Select Airport")
+      setNotificationDescription("Please select an airport.")
+      setShow(true)
       return
+    }
+    if(scheduleDate == undefined || scheduleDate== "" || airportData == null)
+      {
+        setDialogType(2) //Error
+        setNotificationTitle("Schedule Date")
+        setNotificationDescription("Please enter a date.")
+        setShow(true)
+        return
+      }
     props.showFIDS(displayType,scheduleDate) 
    }
 
@@ -17,13 +42,16 @@ export default function AirportData(props:any){
       const airportName = document.getElementById("airportName").value;
       if(airportCode == "" && airportName=="")
       {
-        alert("Select Airport")
+        setDialogType(2) //Error
+        setNotificationTitle("Select Airport")
+        setNotificationDescription("Please select an airport.")
+        setShow(true)
         return
       }
        let _airportData 
        const airportCollection= db.collection("Airport");
        if(airportCode !="")
-          _airportData= await airportCollection.where("ident","==",airportCode).get()
+          _airportData= await airportCollection.where("ident","==",airportCode.toUpperCase()).get()
        else
        _airportData= await airportCollection.where("name","==",airportName).get()
        
@@ -39,7 +67,7 @@ export default function AirportData(props:any){
          
 
      }
-    return(       <div className="m-4 p-4 border-2 border-dashed absolute  left-4 z-50  w-1/4 bg-white opacity-70">
+    return(       <div className="m-4 p-4 border-2 border-dashed absolute  left-4 z-50  w-1/4 bg-white opacity-80">
        
                      <div> <label
                           for="airportCode"
@@ -48,7 +76,7 @@ export default function AirportData(props:any){
                           Airport Code
                         </label>
                         <input
-                         
+                        
                           type="text"
                           name="airportCode"
                           id="airportCode"
@@ -118,7 +146,13 @@ export default function AirportData(props:any){
   <div className="font-bold flex justify-between"><span>Wikipedia:</span>      <span> <a href={airportData?.wikipedia ? airportData.wikipedia :"#"} target="_blank" className="text-gray-500">View</a></span></div>
   
   
-  
+  <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
   
   </div>
     

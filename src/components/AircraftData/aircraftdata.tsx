@@ -36,11 +36,17 @@ useEffect(()=>{
    } 
    
 },[props.aircraftData])
-  return(      props.aircraftDataOpen==true ?  <div className="m-4 p-4 border-2 border-dashed absolute top-0 left-4 z-50  w-1/4 bg-white opacity-80">
+
+const closeWindow = () => {
+    setPhoto(null)
+    setAircraftData(null)
+    props.open(false)
+}
+return(      props.aircraftDataOpen==true ?  <div className="m-4 p-4 border-2 border-dashed absolute top-0 left-4 z-50  w-1/4 bg-white opacity-80">
        <div className="flex items-center justify-end">
                      
                      <button className="p-4"
-                       onClick={()=>props.open(false)}  >                   
+                       onClick={()=>closeWindow()}  >                   
                        <svg
                          width="10"
                          height="10"

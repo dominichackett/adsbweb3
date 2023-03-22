@@ -11,44 +11,6 @@
 // the records in the collection. You can still implement rules on who can 
 // edit the data by defining functions on the collection and checking the public key.
 
-@public
-collection User {
-  // `id` is unique and required on all collections
-  id: string;
-
-  // We will use a public key to authenticate function
-  // calls later
-  publicKey: PublicKey;
-
-  // A mandatory property
-  name: string; 
-
-  // An optional property denoted with ?
-  age?: number; 
-
-  // `constructor` is called when a new record is
-  // created, make sure to assign a value to `this.id`
-  constructor (id: string) {
-    // `this.id` must be assigned in the constructor
-    // `this.id` must be unique in collection
-    this.id = id;
-    
-    // You can assign the publicKey of the user who is
-    // creating the record, this can then be used to
-    // control permissions for the record (see below)
-    this.publicKey = ctx.publicKey;
-  }
-
-  // You can add your own functions to determine rules
-  // on who can update the records data
-  function setName (name: string) {
-    // Check if the caller is the original creator of the record.
-    if (ctx.publicKey != this.publicKey) {
-      error('You are not the creator of this record.');
-    }
-    this.name = name;
-  }
-}
 
 //Collection: Airport
 //Description: This stores airport information
@@ -234,7 +196,7 @@ collection Aircraft {
   // calls later
   publicKey: PublicKey;
 
-  name: string; 
+ 
   reg:string;
   manufacturer:string;
   model:string;
@@ -250,10 +212,29 @@ collection Aircraft {
  
   // `constructor` is called when a new record is
   // created, make sure to assign a value to `this.id`
-  constructor (id: string) {
+  constructor (id: string,reg:string,
+  manufacturer:string,
+  model:string,
+  modelCode:string,
+  icao:string,
+  iata:string,
+  owner:string,
+  operator:string,
+  callsign:string,
+  category:string) {
     // `this.id` must be assigned in the constructor
     // `this.id` must be unique in collection
     this.id = id;
+  this.reg=reg;
+  this.manufacturer=manufacturer;
+  this.model=model;
+  this.modelCode=modelCode;
+  this.icao=icao;
+  this.iata=iata;
+  this.owner=owner;
+  this.operator=operator;
+  this.callsign=callsign;
+  this.category=category;
     
     // You can assign the publicKey of the user who is
     // creating the record, this can then be used to
@@ -263,7 +244,7 @@ collection Aircraft {
 
   // You can add your own functions to determine rules
   // on who can update the records data
-  function setAircraft ( name: string, 
+  function setAircraft (  
   reg:string,
   manufacturer:string,
   model:string,
@@ -527,7 +508,7 @@ collection FlightData {
   speed:number;
   heading:number;
   time:number;
- 
+  @index(time,time);
   // `constructor` is called when a new record is
   // created, make sure to assign a value to `this.id`
   constructor (id: string,hex: string, 
@@ -732,6 +713,8 @@ collection PolicyOffer {
   
   }
 }
+
+
 
 
 

@@ -133,7 +133,7 @@ export default function Tracking() {
       id="home"
       className= "  relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
-           <div className="container relative">       
+           <div className="container relative mb-10">       
            <SourceButtons sourceChanged={sourceChanged}/>
            <AircraftData aircraftData={aircraftData} open={setOpen} aircraftDataOpen={aircraftDataOpen} />
 

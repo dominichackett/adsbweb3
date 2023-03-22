@@ -6,6 +6,9 @@ import 'leaflet/dist/leaflet.css';
 import { useState ,useRef,useEffect} from 'react';
 import AirportData from '@/components/AirportData/airportdata';
 import  'leaflet-rotatedmarker';
+
+
+
 import FIDS from '@/components/Fids/board';
 
 function ChangeLocation(props:any){
@@ -19,6 +22,7 @@ export default function Airports() {
     const [location,setLocation] = useState([10.536421,  -61.311951])
     const [zoomLevel,setZoomLevel] = useState(8)
     const [scheduleDate,setScheduleDate] = useState()
+    const [airportIATACode,setAirportIATACode] = useState()
     const [fidsType,setFidsType] = useState()
     const setOpen = (value:any)=>{
       setFidsDataOpen(value)
@@ -26,14 +30,14 @@ export default function Airports() {
   
 
   const findAirport = async(airport:any) => {
-    //alert(`${airport.lattitude} ${airport.longitude} `)
+    setAirportIATACode(airport.iata_code)
     setLocation([airport.lattitude,airport.longitude])
-    setZoomLevel(15)
+    setZoomLevel(14)
   }
   const showFIDS = (displayType:number,_scheduleDate:any)=>{
      setFidsDataOpen(true)
      setFidsType(displayType)
-  }
+setScheduleDate(_scheduleDate)  }
   return (
     <>
       <Head>
@@ -56,9 +60,9 @@ export default function Airports() {
       className= "  relative z-10 overflow-hidden bg-cover bg-top bg-no-repeat "
           >
 
-<div className="container relative">     
+<div className="container relative mb-10">     
        <AirportData find={findAirport} showFIDS={showFIDS} />
-       <FIDS type={fidsType} open={setOpen} fidsDataOpen={fidsDataOpen} scheduleDate={scheduleDate} />
+       <FIDS type={fidsType} open={setOpen} fidsDataOpen={fidsDataOpen} scheduleDate={scheduleDate} airportIATACode={airportIATACode} />
        <MapContainer     zoomControl={false}
  center={location} zoom={zoomLevel} scrollWheelZoom={false}>
     

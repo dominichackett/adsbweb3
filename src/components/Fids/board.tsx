@@ -2,12 +2,87 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlaneDeparture,faPlaneArrival,faBell } from '@fortawesome/free-solid-svg-icons'
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import { useState,useEffect } from 'react';
+import { Polybase } from "@polybase/client";
+import { format, fromUnixTime } from 'date-fns';
 
 config.autoAddCss = false;
+function FlightData(props:any){
+ const [airline,setAirline]  = useState([]) 
+ const [flightNumber,setFlightNumber] = useState([]) 
+ const [airport,setAirport] = useState([])
+ const [airportIATA,setAirportIATA] = useState([])
+ const [time,setTime] = useState([]) 
+ const [status,setStatus] = useState([])
+ useEffect(()=>{
+   setAirline(Array.from(props.airline))
+   setFlightNumber(Array.from(props.flightNumber))  
+   setAirport(Array.from(props.airport))
+   setAirportIATA(Array.from(props.airport_iata))
+   setTime(Array.from(props.time))
+   setStatus(Array.from(props.status))
+ },[])
+return(
+        <div class="departure-board ">
+                <FontAwesomeIcon icon={faBell} className={`cursor-pointer mr-2 ${props.alert == true ? "text-green": "text-white"}`}/>
 
+        {airline.map(letter=> <span class={`letter letter-${letter}`}></span>)}
+        <span class="letter letter-blank"></span>
+        {flightNumber.length < 4 && <span class="letter letter-0"></span> }       
+        {flightNumber.map(letter=> <span class={`letter letter-${letter}`}></span>)}
+        <span class="letter letter-blank"></span>
+        {airportIATA.map(letter=> <span class={`letter letter-${letter != " " ? letter:"blank"  }`}></span>)}
+        <span class="letter letter-blank"></span>
+        {time.map(letter=> <span class={`letter letter-${letter != " " ? letter:"blank"  }`}></span>)}
+        <span class="letter letter-blank"></span>
+        {status.map(letter=> <span class={`letter letter-${letter != " " ? letter:"blank"  }`}></span>)}
+        <span class="letter letter-blank"></span>
+
+        {airport.map(letter=> <span class={`letter letter-${letter != " " ? letter:"blank"  }`}></span>)}
+       
+</div>)    
+} 
+
+const schedule = [{airline:"AA",flightNumber:"0815",airport:"NEW YORK", airport_iata:"JFK",time:"1000PM",status:"SCHEDULED",alert:true }]
 export default function FIDS(props:any){
+   const [flights,setFlights] = useState([])
+   const db = new Polybase({
+    defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+});
+
+   useEffect(()=>{
+    async function getSchedule(){
+       const fidsType = props.type == 1 ? "Departure": "Arrival"
+       const fType  =props.type == 1 ? "dep": "arr"
+       const flightData = db.collection(fidsType);
+       const records= await flightData.where(`${fType}_iata`,"==",props.airportIATACode).where(`${fType}_time_ts`,">",new Date(props.scheduleDate).getTime()).get()//where("name","==","Dominic Hackett").get();
+       console.log(records)
+       console.log(props.airportIATACode)
+       const cityData = db.collection("Airport")
+       let _flights = []
+       for(const index in records.data){
+         const data = records.data[index].data
+         const city = await cityData.where("iata_code","==",`${props.type ==  2 ? data.dep_iata: data.arr_iata}`).get()  
+         let cityName = "       "
+         console.log(city)
+         if(city.data.length > 0)
+         {
+           cityName = city.data[0].data.municipality.toUpperCase()
+         }
+         const date = fromUnixTime(props.type ==  2 ? data.arr_time_ts: data.dep_time_ts);
+         const formattedTime = format(date, 'hhmma');
+         const status = data.status.slice(0,4).toUpperCase()
+         _flights.push({airline:data.airline_iata,flightNumber:data.flight_number,airport:cityName, airport_iata:`${props.type ==  2 ? data.dep_iata: data.arr_iata}`,time:formattedTime,status:status,alert:false })
+       }
+
+       setFlights(_flights)
+
+    }
+   if ( props.fidsDataOpen==true)
+    getSchedule()
+   },[ props.fidsDataOpen,props.type]) 
     return(    
-      props.fidsDataOpen==true ?    <div className="m-4 min-h-[770px] p-4 border-2 border-dashed border-white absolute  right-4 z-50  w-2/3  bg-black ">
+      props.fidsDataOpen==true ?    <div className="m-4 min-h-[770px] p-4 border-2 border-dashed border-white absolute  right-4 z-50  w-2/3  bg-primary ">
          <div className="flex items-center justify-end">
                        
                        <button className="p-4"
@@ -38,96 +113,15 @@ export default function FIDS(props:any){
                        
                      </div>
   
-                     <div >   <h1><span className='text-4xl'><FontAwesomeIcon  icon={props.type == 1? faPlaneDeparture:faPlaneArrival} /> {props.type == 1 ? "Departures":"Arrivals"}</span></h1>
-                     <div class="departure-board mt-8">
-                     <span class="letter letter-A"></span>
-      <span class="letter letter-A"></span>
-               
-      <span class="letter letter-blank"></span>
+     <div className="mb-4" ><h1><span className="text-4xl" ><FontAwesomeIcon  icon={props.type == 1? faPlaneDeparture:faPlaneArrival} /> {props.type == 1 ? "Departures":"Arrivals"}</span></h1>
+     </div>
+
+     {flights.map( _flight => (<FlightData airline={_flight.airline} flightNumber={_flight.flightNumber} airport={_flight.airport} airport_iata={_flight.airport_iata} time={_flight.time} status={_flight.status} alert={_flight.alert}/>))}
                   
-      <span class="letter letter-0"></span>
-      <span class="letter letter-8"></span>
-      <span class="letter letter-1"></span>
-      <span class="letter letter-5"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-N"></span>
-      <span class="letter letter-E"></span>
-      <span class="letter letter-W"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-Y"></span>
-      <span class="letter letter-O"></span>
-      <span class="letter letter-R"></span>
-      <span class="letter letter-K"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-J"></span>
-      <span class="letter letter-F"></span>
-      <span class="letter letter-K"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-1"></span>
-      <span class="letter letter-0"></span>
-      <span class="letter letter-0"></span>
-      <span class="letter letter-0"></span>
-      <span class="letter letter-P"></span>
-      <span class="letter letter-M"></span>
-      <span class="letter letter-blank"></span>
-      
-      <span class="letter letter-S"></span>
-      <span class="letter letter-C"></span>
-      <span class="letter letter-H"></span>
-      <span class="letter letter-E"></span>
-      <span class="letter letter-D"></span>
-      <span class="letter letter-U"></span>
-      <span class="letter letter-L"></span>
-      <span class="letter letter-E"></span>
-      <span class="letter letter-D"></span>
-      <FontAwesomeIcon icon={faBell} className="cursor-pointer ml-6 text-white"/>
 
 
-      </div>
-      <div class="departure-board">
-                     <span class="letter letter-A"></span>
-      <span class="letter letter-A"></span>
-               
-      <span class="letter letter-blank"></span>
-                  
-      <span class="letter letter-0"></span>
-      <span class="letter letter-8"></span>
-      <span class="letter letter-1"></span>
-      <span class="letter letter-5"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-N"></span>
-      <span class="letter letter-E"></span>
-      <span class="letter letter-W"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-Y"></span>
-      <span class="letter letter-O"></span>
-      <span class="letter letter-R"></span>
-      <span class="letter letter-K"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-J"></span>
-      <span class="letter letter-F"></span>
-      <span class="letter letter-K"></span>
-      <span class="letter letter-blank"></span>
-      <span class="letter letter-1"></span>
-      <span class="letter letter-0"></span>
-      <span class="letter letter-0"></span>
-      <span class="letter letter-0"></span>
-      <span class="letter letter-P"></span>
-      <span class="letter letter-M"></span>
-      <span class="letter letter-blank"></span>
-      
-      <span class="letter letter-S"></span>
-      <span class="letter letter-C"></span>
-      <span class="letter letter-H"></span>
-      <span class="letter letter-E"></span>
-      <span class="letter letter-D"></span>
-      <span class="letter letter-U"></span>
-      <span class="letter letter-L"></span>
-      <span class="letter letter-E"></span>
-      <span class="letter letter-D"></span>
-      <FontAwesomeIcon icon={faBell} className="cursor-pointer ml-6 text-green-500"/>
-      </div>
-  </div>
+     
+ 
   
   
   

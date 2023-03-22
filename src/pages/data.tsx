@@ -3,20 +3,40 @@ import Header from '@/components/Header/header'
 import Footer from '@/components/Footer/footer'
 import { useState,useEffect } from 'react'
 import { NFTStorage } from "nft.storage";
-//import Notification from '@/components/Notification/Notification'
+import Notification from '@/components/Notification/Notification'
 import { useContractRead,useSigner  } from 'wagmi'
-import { ethers } from 'ethers'
-import {
-  useAccount 
- 
-} from 'wagmi'
+
+import Papa from "papaparse"
+import { ethers } from "ethers";
+import { Polybase } from "@polybase/client";
+import {ethPersonalSign} from '@polybase/eth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {  faPlaneDeparture } from '@fortawesome/free-solid-svg-icons'
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-export default function Profile() {
-    const {address} = useAccount()
-    const [selectedFile, setSelectedFile] = useState()
+
+
+export default function UploadData() {
+
+
+  
+  const db = new Polybase({
+      defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+  });
+  
+  
+    db.signer(async (data) => {
+          
+      
+      return { h: 'eth-personal-sign', sig: ethPersonalSign(process.env.NEXT_PUBLIC_PRIVATE_KEY, data) }
+    })
+
+    useEffect(()=>{
+      console.log(process.env.NEXT_PUBLIC_PRIVATE_KEY)
+    },[])
+  
+  
+    const [selectedFile, setSelectedFile] = useState(undefined)
     const [preview, setPreview] = useState()
     const [isSaving,setIsSaving] = useState(false)
     const [isLoading,setIsLoading]  = useState(true)
@@ -35,71 +55,76 @@ export default function Profile() {
         setShow(false);
       };
   
-      const contractReadProfile = null /*useContractRead({
-        address:TicketManagerContractAddress,
-        abi: TicketManagerContractABI,
-        functionName: 'getProfile',
-        enabled:false,
-        args:[address]
-        
-      })*/
-    
-    const [nftstorage] = useState(
-      new NFTStorage({ token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY })
-    );
-  
-   //Get Profile
-   useEffect(()=>{
-     async function getProfile() {
-        const profile = await contractReadProfile.refetch()
-        console.log(profile);
-        if(profile.data)
-        {
-          const url = profile.data.replace("ipfs://" ," https://nftstorage.link/ipfs/")
-          fetch(url)
-          .then((response) => response.json())
-          .then(async (data) => { 
-            console.log(data)
-             document.getElementById("name").value = data.name
-             document.getElementById("description").innerHTML = data.description 
-             const imageUrl = data.image.replace("ipfs://" ," https://nftstorage.link/ipfs/")
-             const image =  await fetch(imageUrl)
-             if(image.ok)
-             {
-                
-                   setSelectedFile(await image.blob())
-                   // const objectUrl = URL.createObjectURL(await image.blob())
-                   //setPreview(objectUrl)
-             }   
-  
-          });
-        }
-  
-        setIsLoading(false)
-     }
-    // getProfile()
-   }
-   ,[])
-  
-  
-    
-  
-  
-    // create a preview as a side effect, whenever selected file is changed
-   useEffect(() => {
-    if (!selectedFile) {
-        setPreview(undefined)
-        return
+   
+  const saveSchedule = async (data:any) =>{
+    const arrivalData = db.collection("Arrival");
+    const departureData = db.collection("Departure"); 
+    for(const index in data)
+    {
+        if(data[index].airline== "null" )//Data is not valid
+          continue
+
+        try {
+              const arrivalTime = new Date(data[index].arr_time).getTime() 
+              const departureTime = new Date(data[index].dep_time).getTime()           
+          
+            const aid = data[index].airline_iata+data[index].flight_number+arrivalTime.toString()
+            const did = data[index].airline_iata+data[index].flight_number+departureTime.toString()
+            const departureRecord = [did,data[index].airline_iata
+            ,data[index].flight_iata,data[index].flight_number,data[index].dep_iata
+           ,data[index].arr_iata,( data[index].duration != "null" ? parseInt(data[index].duration):0),(data[index].dep_delayed != "null" ? parseInt(data[index].dep_delayed) : 0),
+           (data[index].arr_delayed != "null" ? parseInt(data[index].arr_delayed) : 0),data[index].status,
+            arrivalTime,0,0,departureTime,0]
+            console.log(departureRecord)
+            
+            const arrivalRecord = [aid,data[index].airline_iata
+            ,data[index].flight_iata,data[index].flight_number,data[index].dep_iata
+           ,data[index].arr_iata,( data[index].duration != "null" ? parseInt(data[index].duration):0),(data[index].dep_delayed != "null" ? parseInt(data[index].dep_delayed) : 0),
+           (data[index].arr_delayed != "null" ? parseInt(data[index].arr_delayed) : 0),data[index].status,
+            arrivalTime,0,0,departureTime,0]
+            console.log(departureRecord)
+            
+           // const recordDataArrival = await arrivalData.create(arrivalRecord)
+            const recordDataDeparture = await departureData.create(departureRecord)
+
+
+       }catch(error){
+         console.log(error)   
+       }
     }
-  
-    const objectUrl = URL.createObjectURL(selectedFile)
-    setPreview(objectUrl)
-  
-    // free memory when ever this component is unmounted
-    return () => URL.revokeObjectURL(objectUrl)
-  }, [selectedFile])
-  
+
+      setDialogType(1)
+      setNotificationTitle("Upload Schedule")
+      setNotificationDescription("Successfully uploaded schedule.") 
+       setShow(true)
+
+  }
+
+
+  const uploadSchedule = async (e) => {
+    
+    if(selectedFile==undefined)
+    {
+      setDialogType(2)
+      setNotificationTitle("Upload Schedule")
+      setNotificationDescription("No schedule file selected.") 
+       setShow(true)
+       return
+    }
+
+    Papa.parse(selectedFile, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        console.log(results.data)
+        saveSchedule(results.data)
+      },
+    });
+
+  }
+    
   const onSelectFile = (e) => {
+
     if (!e.target.files || e.target.files.length === 0) {
         setSelectedFile(undefined)
         return
@@ -108,65 +133,7 @@ export default function Profile() {
     // I've kept this example simple by using the first image instead of multiple
     setSelectedFile(e.target.files[0])
   }
-    const saveProfile = async (e)=>{
-       e.preventDefault()
-       setIsSaving(true)
-       setDialogType(3) //Information
-       setNotificationTitle("Uploading Profile Picture.")
-       setNotificationDescription("Saving Profile Picture.")
-       setShow(true)
-      
-       const metadata = await nftstorage.store({
-        name: document.getElementById("name").value,
-         description: document.getElementById("description").value,
-        image: selectedFile
-        
-      })
-      setShow(false)
-      if(!metadata){
-         setDialogType(2) //Error
-         setNotificationTitle("Save Profile Error.")
-         setNotificationDescription("Error uploading profile picture.")
-         setShow(true)
-         return
-      }
   
-      setProfileMetadata(metadata.url)
-      try {
-        const contract = new ethers.Contract(
-          TicketManagerContractAddress,
-          TicketManagerContractABI,
-          signer
-        );
-        //alert(JSON.stringify(myPolicy))
-        let transaction = await contract.setProfile(
-          metadata.url,{gasLimit:3000000}
-        );
-  
-        await transaction.wait();
-            setDialogType(1) //Success
-            setNotificationTitle("Save Profile")
-            setNotificationDescription("Profile save successfully.")
-            setShow(true)
-            setIsSaving(false)
-            setProfileMetadata(undefined)
-        
-      } catch (_error) {
-        setDialogType(2) //Error
-        setNotificationTitle("Save Profile Error")
-  
-        setNotificationDescription(
-          _error.data ? _error.data.message : _error.message
-        );
-        setShow(true)
-        setIsSaving(false)
-        setProfileMetadata(undefined)
-  
-   
-      }
-    
-    } 
-     
   return (
     <>
       <Head>
@@ -192,13 +159,14 @@ export default function Profile() {
         <div
           className="relative  overflow-hidden rounded-xl bg-bg-color"
         >
-          <form className="p-8 sm:p-10"    onSubmit={ saveProfile}
+          <form className="p-8 sm:p-10"   
 >
             <div className="-mx-5 flex flex-wrap xl:-mx-8  flex justify-center items-center">
               <div className="w-full px-5 lg:w-5/12 xl:px-8  ">
                 <div className="mb-12 lg:mb-0">
                 <div class="mb-8">
                     <input
+                      onChange={onSelectFile}
                       type="file"
                       name="file"
                       id="file"
@@ -238,7 +206,9 @@ Upload Flight Schedule Information                        </span>
                    
                   <div className="pt-2">
                      <button
-                     disabled={isLoading || isSaving || !signer}
+                     type="button"
+                     onClick={()=>uploadSchedule()}
+                     disabled={isSaving}
                      
                       className="hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
                     >
@@ -257,7 +227,14 @@ Upload Flight Schedule Information                        </span>
         </div>
       </div>
           </section>
-        
+          <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
+  
      <Footer/>
      </main>
      </>

@@ -7,7 +7,10 @@ export const getAW3Data = async ()=> {
         defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
     });
       const flightDataCollection= db.collection("FlightData");
-      const flightData= await flightDataCollection.get()//where("name","==","Dominic Hackett").get();
+      const time = new Date()
+      time.setSeconds(time.getSeconds() - 30);
+
+      const flightData= await flightDataCollection.where("time",">=",time.getTime()).get()//where("name","==","Dominic Hackett").get();
       const response = await fetch('http://localhost:3000/images/aircraft/A320.svg');
       const data = await response.text();
       // Parse the SVG data into an XML document
