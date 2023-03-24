@@ -1,7 +1,7 @@
 import '@/styles/global.scss'
 import type { AppProps } from 'next/app'
 import { WagmiConfig, createClient, configureChains } from 'wagmi'
-import { Chain } from 'wagmi/chains';
+import { Chain ,goerli,optimismGoerli,gnosisChiado,filecoinHyperspace} from 'wagmi/chains';
 
 import { publicProvider } from 'wagmi/providers/public'
 import '@rainbow-me/rainbowkit/styles.css';
@@ -11,42 +11,70 @@ import {
   getDefaultWallets,
   RainbowKitProvider,darkTheme 
 } from '@rainbow-me/rainbowkit';
-const fantomChain: Chain = {
-  id: 4002,
-  name: 'Fantom Testnet',
-  network: 'fantom',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Fantom',
-    symbol: 'FTM',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://endpoints.omniatech.io/v1/fantom/testnet/public']
+
+
+
+
+const zkEVM :Chain = {
+    id:1442,
+    name:"zkEVM Testnet",
+    nativeCurrency: {
+      decimals: 18,
+      name: 'Ethereum',
+      symbol: 'ETH',
     },
-    public: {
-      http: ['https://endpoints.omniatech.io/v1/fantom/testnet/public']
+    rpcUrls: {
+      default: {
+        http: ['https://explorer.public.zkevm-test.net']
+      },
+      public: {
+        http: ['https://explorer.public.zkevm-test.net']
+      },
     },
-  },
-  blockExplorers: {
-    default: { name: 'FtmScan', url: 'https://testnet.ftmscan.com' },
-  },
-  testnet: false,
-};
+    blockExplorers: {
+      default: { name: 'zkScan', url: 'https://explorer.public.zkevm-test.net' },
+    },
+    testnet: true,
+  };
+
+  
+  
+
+  const scrollTestnet :Chain = {
+    id:534353,
+    name:"Scroll Testnet",
+    nativeCurrency: {
+      decimals: 18,
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    rpcUrls: {
+      default: {
+        http: ['https://alpha-rpc.scroll.io/l2']
+      },
+      public: {
+        http: ['https://alpha-rpc.scroll.io/l2']
+      },
+    },
+   
+    testnet: true,
+  };
+    
+
 // Configure chains & providers
 // Two popular providers are Alchemy (alchemy.com) and Infura (infura.io)
 const { chains, provider } = configureChains(
-  [fantomChain],
+  [gnosisChiado,zkEVM,optimismGoerli,scrollTestnet,filecoinHyperspace,goerli],
   [publicProvider()],
 )
 
 const { connectors } = getDefaultWallets({
-  appName: 'NFT Admissions',
+  appName: 'Ads-B Web3',
   chains
 });
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: 'Sign in to NFT Admissions',
+  statement: 'Sign in to Ads-b Web3',
 });
 
 // Set up client

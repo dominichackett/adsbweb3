@@ -158,7 +158,7 @@ import Logo from './logo';
                             href="/p2pinsurance"
                             className="mx-8 flex py-2 text-base font-semibold text-[#bababa] group-hover:text-white lg:mr-0 lg:ml-8 lg:inline-flex lg:py-6 lg:px-0 xl:ml-12"
                           >
-                            Flight Insurance
+                            Insurance
                           </Link>
                         </li>
                       

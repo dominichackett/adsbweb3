@@ -6,7 +6,11 @@ export default async function handler(req, res) {
         }
       })
       //console.log(result)
-      const results = await result.json()
-      res.status(200).json(results);
-      
+      try{
+         const results = await result.json()
+        res.status(200).json(results);
+      }catch(err)
+      {
+        res.status(200).json({"states":[]});
+      }
   }

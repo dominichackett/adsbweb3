@@ -6,7 +6,7 @@ import {ethPersonalSign} from '@polybase/eth'
 import axios from "axios";
 dotenv.config()
 const apiUrl = 'http://127.0.0.1:8080/aircraft/data.json'; // Replace with your API URL
-const intervalTime = 30000; // 1 second interval
+const intervalTime = 4000; // 1 second interval
 
 
 
@@ -49,7 +49,7 @@ async function saveADSBData(data){
 
     for(const index in data)
     {
-        if(data[index].validposition==0 ||  data[index].seen > 50)//Data is not valid
+        if(data[index].validposition==0 ||  data[index].seen > 100)//Data is not valid
           continue
 
         try {

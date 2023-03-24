@@ -10,8 +10,11 @@ import  'leaflet-rotatedmarker';
 import SourceButtons from '@/components/SourceButtons/sourcebuttons';
 import { getAW3Data, getOpenSkyData } from '@/components/utils/utils';
 import { element } from '@rainbow-me/rainbowkit/dist/css/reset.css';
+import {getVerified} from "@/components/utils/utils"
+
 function EventListner(props:any){
   const map = useMapEvent('moveend', handleMoveEnd);
+  const verifiedFeeders = new Map()
   function handleMoveEnd(event:any) {
 
     props.handleEvent(event)
@@ -25,9 +28,10 @@ export default function Tracking() {
     const intervalRef = useRef()
     const [aircraftData,setAircraftData]  = useState()
     const [aircraftDataOpen,setAircraftDataOpen] = useState(false)
-    const  source= useRef(2)
+    const  source= useRef(1)
     const [markers,setMarkers] = useState([])                  
     const [visibleMarkers,setVisibleMarkers] = useState([])
+    const [verifedFeeders,setVerifiedFeeders]  = useState(new Map())
     const handleMarkerClick = (e:any,marker:any) => {
       if (e.target.options.icon.options.className === 'marker-icon my-custom-icon') {
         // Handle marker click here
@@ -49,10 +53,9 @@ export default function Tracking() {
    const setOpen = (value:any)=>{
     setAircraftDataOpen(value)
    }
-
-
+ 
+   
    async function getData(){
-      
       
      
 
@@ -62,7 +65,7 @@ export default function Tracking() {
      else  
      {
        try{
-       flights = await getAW3Data() 
+       flights = await getAW3Data(source.current == 2 ? false:true,verifedFeeders) 
        }catch(error)
        {
          
@@ -75,12 +78,28 @@ export default function Tracking() {
    useEffect(()=>{
     
      getData()
-    intervalRef.current =  setInterval(getData,10000) //Call every two minutes
+    intervalRef.current =  setInterval(getData,4000) //Call every two minutes
       // Return a function to clean up the interval on unmount
     return () => clearInterval(intervalRef.current);
    },[])
    
 
+  useEffect(()=>{
+
+     async function getVerifedFeeders(){
+       const results = await getVerified()
+       let _feeders = new Map()
+       for(const index in results){
+        _feeders[results[index].args.about] = true 
+        
+      }
+      setVerifiedFeeders(_feeders)
+    }
+     
+     getVerifedFeeders()
+  },[])
+
+   //Get Visible markers
   useEffect(()=>{
     if(markers && mapRef.current)
        getVisibleMarkers()

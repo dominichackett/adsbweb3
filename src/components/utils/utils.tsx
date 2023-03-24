@@ -1,14 +1,18 @@
 import { element } from '@rainbow-me/rainbowkit/dist/css/reset.css';
 import  'leaflet-rotatedmarker';
 import { Polybase } from "@polybase/client";
-
-export const getAW3Data = async ()=> {
+import wagmiCore from '@wagmi/core'
+import wagmiAlchemy from "@wagmi/core/providers/alchemy"
+import wagmiChains from '@wagmi/core/chains'
+import { ethers } from 'ethers';
+import {attestationsContract, attestationsContractAbi} from "@/components/Contracts/contracts"
+export const getAW3Data = async (verified:boolean,feeders:any)=> {
     const db = new Polybase({
         defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
     });
       const flightDataCollection= db.collection("FlightData");
       const time = new Date()
-      time.setSeconds(time.getSeconds() - 30);
+      time.setSeconds(time.getSeconds() - 5);
 
       const flightData= await flightDataCollection.where("time",">=",time.getTime()).get()//where("name","==","Dominic Hackett").get();
       const response = await fetch('http://localhost:3000/images/aircraft/A320.svg');
@@ -38,8 +42,8 @@ export const getAW3Data = async ()=> {
     const encodedData = btoa(modifiedData);
     const dataURL = `data:image/svg+xml;base64,${encodedData}`;  
     
-    
-   
+       const  _address  = ethers.utils.computeAddress(element.publicKey)
+   //    if(verified== false || (verified == true && feeders[_address]== true))
         return {
           position: [element.lattitude,  element.longitude],
           rotation:element.heading,
@@ -155,4 +159,23 @@ export function getColor(altitude:number,onGround:boolean)
         const b = rgb[2] * 2.55;
         return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
       
+}
+
+
+export const getVerified = async ()=>{
+
+  const wallet =  new ethers.Wallet(process.env.NEXT_PUBLIC_PRIVATE_KEY);
+
+const provider = new ethers.providers.AlchemyProvider("optimism-goerli",process.env.NEXT_PUBLIC_ALCHEMY_API_KEY)
+const connectedWallet = wallet.connect(provider);
+  const contract = new ethers.Contract(
+    attestationsContract,
+    attestationsContractAbi,
+    connectedWallet)
+    const filter = contract.filters.AttestationCreated("0x5858769800844ab75397775Ca2Fa87B270F7FbBe",null,ethers.utils.formatBytes32String("adsbweb3.verified.feeder:bool"), null)
+   
+   const results = await contract?.queryFilter(filter,0,'latest');
+ 
+      return results
+
 }
