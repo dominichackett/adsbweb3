@@ -1,5 +1,5 @@
 import { element } from '@rainbow-me/rainbowkit/dist/css/reset.css';
-import  'leaflet-rotatedmarker';
+//import 'leaflet-rotatedmarker';
 import { Polybase } from "@polybase/client";
 import wagmiCore from '@wagmi/core'
 import wagmiAlchemy from "@wagmi/core/providers/alchemy"
@@ -7,6 +7,8 @@ import wagmiChains from '@wagmi/core/chains'
 import { ethers } from 'ethers';
 import {attestationsContract, attestationsContractAbi} from "@/components/Contracts/contracts"
 export const getAW3Data = async (verified:boolean,feeders:any)=> {
+    if(!L)
+     return
     const db = new Polybase({
         defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
     });
@@ -68,7 +70,9 @@ export const getAW3Data = async (verified:boolean,feeders:any)=> {
 }
 
 export const getOpenSkyData = async ()=>{
-const result = await fetch("http://localhost:3000/api/opensky")
+  if(!L)
+    return
+  const result = await fetch("http://localhost:3000/api/opensky")
 console.log(result)
  const flightData = await result.json()
  const response = await fetch('http://localhost:3000/images/aircraft/A320.svg');
@@ -178,4 +182,40 @@ const connectedWallet = wallet.connect(provider);
  
       return results
 
+}
+
+
+
+export async function getDistance(from,to) {
+
+  const db = new Polybase({
+    defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+});
+
+const airportDataCollection= db.collection("Airport");
+const time = new Date()
+time.setSeconds(time.getSeconds() - 5);
+
+const _from= await airportDataCollection.where("iata_code","==",from).get()//where("name","==","Dominic Hackett").get();
+const _to= await airportDataCollection.where("iata_code","==",to).get()//where("name","==","Dominic Hackett").get();
+ const lat1 = _from.data[0].data.lattitude
+ const lon1 = _from.data[0].data.longitude
+ const lat2 = _to.data[0].data.lattitude
+ const lon2 = _to.data[0].data.longitude
+  
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2-lat1);
+  const dLon = deg2rad(lon2-lon1);
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const d = R * c; // Distance in km
+  return d;
+}
+
+export function deg2rad(deg) {
+  return deg * (Math.PI/180)
 }

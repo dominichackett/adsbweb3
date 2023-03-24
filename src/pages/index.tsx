@@ -3,8 +3,6 @@ import Header from '@/components/Header/header'
 import Footer from '@/components/Footer/footer'
 import Link from 'next/link'
 import Pricing from '@/components/Pricing/pricing'
-import { faPlaneArrival } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 export default function Home() {
   return (
     <>

@@ -1,5 +1,10 @@
 import { Fragment } from 'react'
 import { CheckIcon, MinusIcon } from '@heroicons/react/20/solid'
+import { ethers } from 'ethers'
+import { adbsweb3ContractAddress,adsbweb3ContractAbi,usdcContractAbi,usdcContractAddress } from '@/components/Contracts/contracts'
+import { useSigner ,useChainId } from 'wagmi'
+import {useState, useEffect } from 'react'
+import Notification from '@/components/Notification/Notification'
 
 const tiers = [
   {
@@ -9,6 +14,7 @@ const tiers = [
     priceMonthly: 'Free',
     description: 'Quis suspendisse ut fermentum neque vivamus non tellus.',
     mostPopular: false,
+    planId:0
   },
   {
     name: 'Essential',
@@ -17,6 +23,7 @@ const tiers = [
     priceMonthly: '$29',
     description: 'Quis eleifend a tincidunt pellentesque. A tempor in sed.',
     mostPopular: true,
+    planId:1
   },
   {
     name: 'Premium',
@@ -25,6 +32,7 @@ const tiers = [
     priceMonthly: '$59',
     description: 'Orci volutpat ut sed sed neque, dui eget. Quis tristique non.',
     mostPopular: false,
+    planId:2
   },
 ]
 const sections = [
@@ -67,6 +75,83 @@ function classNames(...classes) {
 }
 
 export default function Pricing() {
+
+  const { data: signer} = useSigner()
+  const chain = useChainId()
+
+  // NOTIFICATIONS functions
+const [notificationTitle, setNotificationTitle] = useState();
+const [notificationDescription, setNotificationDescription] = useState();
+const [dialogType, setDialogType] = useState(1);
+const [show, setShow] = useState(false);
+const close = async () => {
+  setShow(false);
+};
+
+const purchasePlan = async (planId:any)=>
+{
+   
+
+  const planPrice = ethers.utils.parseUnits((planId == 0 ? "0" :(planId == 2 ? "29":"59" )),6 )
+  try {
+
+    const usdcContract  = new ethers.Contract(usdcContractAddress.get(chain),usdcContractAbi,signer)
+    const contract = new ethers.Contract(
+      adbsweb3ContractAddress.get(chain),
+      adsbweb3ContractAbi,
+      signer
+    );
+    
+    if(planId != 0) {
+    let tx = await usdcContract.callStatic.approve( adbsweb3ContractAddress.get(chain),planPrice,{
+      gasLimit: 3000000})
+    
+      let tx1 = await usdcContract.approve( adbsweb3ContractAddress.get(chain),planPrice,{
+        gasLimit: 3000000})
+     
+        await  tx1.wait()
+      }
+        let tx3 = await contract.callStatic.subscribe( planId,{
+          gasLimit: 3000000})   
+     let transaction = await contract.subscribe(planId,{
+      gasLimit: 3000000})
+      
+    
+    await transaction.wait();
+        setDialogType(1) //Success
+        setNotificationTitle("Subscribe")
+        setNotificationDescription("You have subscribed successfully.")
+        setShow(true)
+        
+        
+    
+  } catch (error) {
+
+    
+    if (error.code === 'TRANSACTION_REVERTED') {
+      console.log('Transaction reverted');
+      let revertReason = ethers.utils.parseRevertReason(error.data);
+      setNotificationDescription(revertReason);
+    }  else if (error.code === 'ACTION_REJECTED') {
+    setNotificationDescription('Transaction rejected by user');
+  }else {
+   console.log(error)
+   //const errorMessage = ethers.utils.revert(error.reason);
+    setNotificationDescription(`Transaction failed with error: ${error.reason}`);
+  
+}
+    setDialogType(2) //Error
+    setNotificationTitle("Error Subscribing")
+
+    setShow(true)
+
+
+  }
+
+
+}
+
+
     return (
         <div className="bg-white py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -96,10 +181,11 @@ export default function Pricing() {
                   </h3>
                   <p className="mt-2 flex items-baseline gap-x-1 text-gray-900">
                     <span className="text-4xl font-bold">{tier.priceMonthly}</span>
-                    <span className="text-sm font-semibold">/month</span>
+                    <span className="text-sm font-semibold">/year</span>
                   </p>
-                  <a
-                    href={tier.href}
+                  <button
+
+                     onClick={()=>purchasePlan(tier.planId)}
                     aria-describedby={tier.id}
                     className={classNames(
                       tier.mostPopular
@@ -109,7 +195,7 @@ export default function Pricing() {
                     )}
                   >
                     Buy plan
-                  </a>
+                  </button>
                   <ul role="list" className="mt-10 space-y-4 text-sm leading-6 text-gray-900">
                     {sections.map((section) => (
                       <li key={section.name}>
@@ -174,10 +260,10 @@ export default function Pricing() {
                         <td key={tier.id} className="px-6 pt-2 xl:px-8">
                           <div className="flex items-baseline gap-x-1 text-gray-900">
                             <span className="text-4xl font-bold">{tier.priceMonthly}</span>
-                            <span className="text-sm font-semibold leading-6">/month</span>
+                            <span className="text-sm font-semibold leading-6">/year</span>
                           </div>
-                          <a
-                            href={tier.href}
+                          <button
+                             onClick={()=>purchasePlan(tier.planId)}
                             className={classNames(
                               tier.mostPopular
                                 ? 'bg-indigo-600 text-white hover:bg-indigo-500'
@@ -186,7 +272,7 @@ export default function Pricing() {
                             )}
                           >
                             Buy plan
-                          </a>
+                          </button>
                         </td>
                       ))}
                     </tr>
@@ -235,12 +321,20 @@ export default function Pricing() {
                           </tr>
                         ))}
                       </Fragment>
+                      
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
+          <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
         </div>
       )
     }

@@ -1,0 +1,38 @@
+export default async function handler(req, res) {
+    const { distance } = req.query
+  
+ 
+    const url = 'https://beta3.api.climatiq.io/estimate';
+const options = {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer '+process.env.CARBON_TRACKER_API,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    "emission_factor": {
+        "activity_id": "commercial_vehicle-vehicle_type_hgv-fuel_source_bev-engine_size_na-vehicle_age_post_2015-vehicle_weight_gt_10t_lt_12t"
+    },
+    "parameters": {
+        "distance": parseInt(distance),
+        "distance_unit": "km"
+    }})
+};
+
+    
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      console.log(data);
+      res.status(200).json( data);
+
+    } catch (error) {
+      console.error(error);
+    }
+    
+
+
+
+   
+      
+  }

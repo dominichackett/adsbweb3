@@ -2,10 +2,12 @@ import Head from 'next/head'
 import Header from '@/components/Header/header'
 import Footer from '@/components/Footer/footer'
 import { useState,useEffect } from 'react'
-import { NFTStorage } from "nft.storage";
-//import Notification from '@/components/Notification/Notification'
-import { useContractRead,useSigner  } from 'wagmi'
 import { ethers } from 'ethers'
+import { adbsweb3ContractAddress,adsbweb3ContractAbi } from '@/components/Contracts/contracts'
+import { useSigner ,useChainId } from 'wagmi'
+import Notification from '@/components/Notification/Notification'
+import { Polybase } from "@polybase/client";
+import * as eth from '@polybase/eth'
 import {
   useAccount 
  
@@ -16,6 +18,8 @@ import { faEarthAmericas,faTrain,faCar,faBus, faPlaneDeparture } from '@fortawes
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
+import { getDistance } from '@/components/utils/utils';
+
 config.autoAddCss = false;
 const people = [
     { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
@@ -23,7 +27,29 @@ const people = [
 ,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
 
 ]
-export default function Profile() {
+export default function Carbon() {
+  const db = new Polybase({
+    defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+  });
+  useEffect(()=>{
+    // Add signer fn
+ db.signer(async (data: string) => {
+   // A permission dialog will be presented to the user
+   const accounts = await eth.requestAccounts();
+ 
+   // If there is more than one account, you may wish to ask the user which
+   // account they would like to use
+   const account = accounts[0];
+   const sig = await eth.sign(data, account);
+   console.log(account)
+ 
+   return { h: "eth-personal-sign", sig };
+ })
+ },[])
+ 
+  const chain = useChainId()
+    const [refreshData,setRefreshData] = useState(new Date())
+    const [emissions,setEmissions] = useState([])
     const {address} = useAccount()
     const [selectedFile, setSelectedFile] = useState()
     const [preview, setPreview] = useState()
@@ -31,10 +57,13 @@ export default function Profile() {
     const [isLoading,setIsLoading]  = useState(true)
     const [profileMetada,setProfileMetadata] = useState()
     const { data: signer} = useSigner()
-  
-  
-    
-   
+    const [distance,setDistance] = useState()
+    const [flight,setFlight] = useState()
+    const [train,setTrain] = useState()
+    const [bus,setBus] = useState()
+    const [car,setCar] = useState()
+    const [flightDate,setFlightDate] = useState()
+   const [passengers,setPassengers] = useState()
     // NOTIFICATIONS functions
       const [notificationTitle, setNotificationTitle] = useState();
       const [notificationDescription, setNotificationDescription] = useState();
@@ -53,129 +82,119 @@ export default function Profile() {
         
       })*/
     
-    const [nftstorage] = useState(
-      new NFTStorage({ token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY })
-    );
-  
-   //Get Profile
-   useEffect(()=>{
-     async function getProfile() {
-        const profile = await contractReadProfile.refetch()
-        console.log(profile);
-        if(profile.data)
-        {
-          const url = profile.data.replace("ipfs://" ," https://nftstorage.link/ipfs/")
-          fetch(url)
-          .then((response) => response.json())
-          .then(async (data) => { 
-            console.log(data)
-             document.getElementById("name").value = data.name
-             document.getElementById("description").innerHTML = data.description 
-             const imageUrl = data.image.replace("ipfs://" ," https://nftstorage.link/ipfs/")
-             const image =  await fetch(imageUrl)
-             if(image.ok)
-             {
-                
-                   setSelectedFile(await image.blob())
-                   // const objectUrl = URL.createObjectURL(await image.blob())
-                   //setPreview(objectUrl)
-             }   
-  
-          });
-        }
-  
-        setIsLoading(false)
-     }
-    // getProfile()
-   }
-   ,[])
-  
-  
-    
-  
-  
-    // create a preview as a side effect, whenever selected file is changed
-   useEffect(() => {
-    if (!selectedFile) {
-        setPreview(undefined)
-        return
-    }
-  
-    const objectUrl = URL.createObjectURL(selectedFile)
-    setPreview(objectUrl)
-  
-    // free memory when ever this component is unmounted
-    return () => URL.revokeObjectURL(objectUrl)
-  }, [selectedFile])
-  
-  const onSelectFile = (e) => {
-    if (!e.target.files || e.target.files.length === 0) {
-        setSelectedFile(undefined)
-        return
-    }
-  
-    // I've kept this example simple by using the first image instead of multiple
-    setSelectedFile(e.target.files[0])
-  }
-    const saveProfile = async (e)=>{
-       e.preventDefault()
-       setIsSaving(true)
-       setDialogType(3) //Information
-       setNotificationTitle("Uploading Profile Picture.")
-       setNotificationDescription("Saving Profile Picture.")
-       setShow(true)
+   const estimateCarbon = async ()=>{
+       const flightdate = document.getElementById("flightDate").value;
+       setFlightDate(new Date(flightdate))
       
-       const metadata = await nftstorage.store({
-        name: document.getElementById("name").value,
-         description: document.getElementById("description").value,
-        image: selectedFile
-        
-      })
-      setShow(false)
-      if(!metadata){
-         setDialogType(2) //Error
-         setNotificationTitle("Save Profile Error.")
-         setNotificationDescription("Error uploading profile picture.")
-         setShow(true)
-         return
-      }
-  
-      setProfileMetadata(metadata.url)
-      try {
-        const contract = new ethers.Contract(
-          TicketManagerContractAddress,
-          TicketManagerContractABI,
-          signer
-        );
-        //alert(JSON.stringify(myPolicy))
-        let transaction = await contract.setProfile(
-          metadata.url,{gasLimit:3000000}
-        );
-  
-        await transaction.wait();
-            setDialogType(1) //Success
-            setNotificationTitle("Save Profile")
-            setNotificationDescription("Profile save successfully.")
-            setShow(true)
-            setIsSaving(false)
-            setProfileMetadata(undefined)
-        
-      } catch (_error) {
-        setDialogType(2) //Error
-        setNotificationTitle("Save Profile Error")
-  
-        setNotificationDescription(
-          _error.data ? _error.data.message : _error.message
-        );
-        setShow(true)
-        setIsSaving(false)
-        setProfileMetadata(undefined)
-  
-   
+       const to = document.getElementById("to").value 
+       const from = document.getElementById("from").value 
+       const _passengers = document.getElementById("passengers").value
+       const _class = document.getElementById("flightClass").value
+       const d = await getDistance(to,from)
+       const _distance =Math.floor(d) 
+       setDistance(Math.floor(d))
+       const response = await fetch(`http://localhost:3000/api/carbon?from=${from}&to=${to}&passengers=${_passengers}&_class=${_class}`);
+       const data = await response.json();
+       setFlight(Math.floor(data.co2e))
+
+       const responseTrain = await fetch(`http://localhost:3000/api/train?distance=${_distance}`);
+       const dataTrain = await responseTrain.json();
+       setTrain(Math.floor(dataTrain.co2e))
+
+       const responseBus = await fetch(`http://localhost:3000/api/bus?distance=${_distance}`);
+       const dataBus = await responseBus.json();
+       setBus(Math.floor(dataBus.co2e))
+
+       const responseCar = await fetch(`http://localhost:3000/api/car?distance=${_distance}`);
+       const dataCar = await responseCar.json();
+       setCar(Math.floor(dataCar.co2e))
+       
+
+       setPassengers(_passengers)
+       
+     
       }
     
-    } 
-     
+  
+  
+      const saveCarbonTracker = async ()=>
+      {
+         
+        
+        const cTracker = db.collection("CarbonTracker");
+
+         
+        try {
+      
+            const contract = new ethers.Contract(
+            adbsweb3ContractAddress.get(chain),
+            adsbweb3ContractAbi,
+            signer
+          );
+          
+              let tx = await contract.callStatic.trackCarbonEmissons( distance,flight,train,bus,car,flightDate.getTime(),{
+                gasLimit: 3000000})   
+        
+                let transaction = await contract.trackCarbonEmissons( distance,flight,train,bus,car,flightDate.getTime(),{
+            gasLimit: 3000000})   
+          
+            const receipt = await transaction.wait();
+            console.log(receipt)  
+          const recordData = await cTracker.create([ receipt.transactionHash,distance.toString(),flight.toString(),train.toString(),bus.toString(),car.toString(),flightDate.getTime(),from,to,address,parseInt(passengers)]);
+ 
+              setDialogType(1) //Success
+              setNotificationTitle("Carbon Tracker")
+              setNotificationDescription("Carbon Emissions Saved.")
+              setShow(true)
+              
+              setRefreshData(new Date())
+              
+          
+        } catch (error) {
+      
+          
+          if (error.code === 'TRANSACTION_REVERTED') {
+            console.log('Transaction reverted');
+            let revertReason = ethers.utils.parseRevertReason(error.data);
+            setNotificationDescription(revertReason);
+          }  else if (error.code === 'ACTION_REJECTED') {
+          setNotificationDescription('Transaction rejected by user');
+        }else {
+         console.log(error)
+         //const errorMessage = ethers.utils.revert(error.reason);
+          setNotificationDescription(`Transaction failed with error: ${error.reason}`);
+        
+      }
+          setDialogType(2) //Error
+          setNotificationTitle("Error Saving Emissions")
+      
+          setShow(true)
+      
+      
+        }
+      
+      
+      }
+      
+    useEffect(()=>{
+        async function getEmissions(){
+          const cTracker = db.collection("CarbonTracker");
+
+          const records = await cTracker.get()
+          //console.log(records)
+          let _data = []
+          records.data.forEach((record)=>{
+              _data.push(record.data)
+          })
+
+          setEmissions(_data)
+          console.log(_data)
+
+        }
+
+        getEmissions()
+    },[refreshData])
+  
   return (
     <>
       <Head>
@@ -201,7 +220,7 @@ export default function Profile() {
         <div
           className="relative  overflow-hidden rounded-xl bg-white"
         >
-          <div className="p-8 sm:p-10"    onSubmit={ saveProfile}
+          <div className="p-8 sm:p-10"  
 >
 <div className="px-4 flex flex-row sm:px-6 lg:px-8">
      
@@ -232,7 +251,7 @@ export default function Profile() {
                           
                           name="from"
                           id="from"
-                          placeholder="NYC"
+                          placeholder="JFK"
                           className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
                         />
                       </div>
@@ -316,7 +335,7 @@ export default function Profile() {
                          required
                           type="datetime-local"
                           name="flightDate"
-                          id="fDate"
+                          id="flightDate"
                           className="text-xs w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
                         />
                       </div>
@@ -326,6 +345,7 @@ export default function Profile() {
                       <div className="mb-2">
                        
                       <button 
+                      onClick={()=>estimateCarbon()}
                       className="mt-5 hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
                     >
                         Estimate Footprint
@@ -357,7 +377,7 @@ export default function Profile() {
                     <div className="w-full px-3 md:w-1/2">
                       <div className="mb-2 flex flex-col">
                       <h1><span className='text-2xl text-white justify-items-center'><FontAwesomeIcon icon={faEarthAmericas}  /></span></h1>
-                      <span className='text-2xl text-white'> Distance</span><span className='mt-2 text-white'>3000 Km</span>
+                      <span className='text-2xl text-white'> Distance</span><span className='mt-2 text-white'>{distance} Km</span>
                       </div>
                     </div>
 
@@ -366,7 +386,7 @@ export default function Profile() {
                     <div className="w-full px-3 md:w-1/2">
                       <div className="mb-2 flex flex-col">
                       <h1><span className='text-2xl text-red justify-items-center'><FontAwesomeIcon icon={faPlaneDeparture}  /></span></h1>
-                      <span className='text-2xl text-white'> Airplane</span><span className='mt-2 text-white'>287.96 Kg</span>
+                      <span className='text-2xl text-white'> Airplane</span><span className='mt-2 text-white'>{flight} Kg</span>
                       </div>
                     </div>
 
@@ -378,13 +398,13 @@ export default function Profile() {
                     <div className="w-full px-3 md:w-1/2">
                       <div className="mb-2 flex flex-col">
                       <h1><span className='text-2xl text-yellow justify-items-center'><FontAwesomeIcon icon={faTrain}  /></span></h1>
-                      <span className='text-2xl text-white'> Train</span><span className='mt-2 text-white'>87.96 Kg</span>
+                      <span className='text-2xl text-white'> Train</span><span className='mt-2 text-white'>{train} Kg</span>
                       </div>
                     </div>
                     <div className="w-full px-3 md:w-1/2">
                       <div className="mb-2 flex flex-col">
                       <h1><span className='text-2xl text-green justify-items-center'><FontAwesomeIcon icon={faBus}  /></span></h1>
-                      <span className='text-2xl text-white'>Bus</span><span className='mt-2 text-white'>77.96 Kg</span>
+                      <span className='text-2xl text-white'>Bus</span><span className='mt-2 text-white'>{bus} Kg</span>
                       </div>
                     </div>
                    
@@ -392,7 +412,7 @@ export default function Profile() {
                     <div className="w-full px-3 md:w-1/2">
                       <div className="mb-2 flex flex-col">
                       <h1><span className='text-2xl  justify-items-center text-[#00FF00]'><FontAwesomeIcon icon={faCar}  /></span></h1>
-                      <span className='text-2xl text-white'>Car</span><span className='mt-2 text-white'>33.96 Kg</span>
+                      <span className='text-2xl text-white'>Car</span><span className='mt-2 text-white'>{car} Kg</span>
                       </div>
                     </div>
                   
@@ -402,6 +422,7 @@ export default function Profile() {
                       <div className="mb-2">
                        
                       <button 
+                      onClick={()=>saveCarbonTracker()}
                       className=" mt-4 hover:shadow-form w-full rounded-md bg-primary py-3 px-8 text-center text-base font-semibold text-white outline-none"
                     >
                         Save Estimate
@@ -424,26 +445,26 @@ export default function Profile() {
       </div>
           </section>
           <ul role="list" className="container p-8 mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {people.map((person) => (
+      {emissions.map((emission) => (
         <li
-          key={person.email}
+          key={emission.id}
           className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
         >
           <div className="flex flex-1 flex-col p-8">
   <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src={'/images/co2green.png'} alt="" />
   <h3 className="text-lg font-bold text-gray-900">Estimate</h3>
-  <h3 className="mt-6 text-sm font-medium text-gray-900">Passengers: 3</h3>
+  <h3 className="mt-6 text-sm font-medium text-gray-900">Passengers: {emission.passengers}</h3>
 
-            <h3 className="mt-6 text-sm font-medium text-gray-900">Distance: 3000 Km</h3>
+            <h3 className="mt-6 text-sm font-medium text-gray-900">Distance: {emission.distance} Km</h3>
             <dl className="mt-1 flex flex-grow flex-col justify-between">
               <dt className="sr-only">Airplane</dt>
-              <dd className="text-sm text-gray-500"><FontAwesomeIcon icon={faPlaneDeparture}  /> Airplane:  287.96 Kg</dd>
+              <dd className="text-sm text-gray-500"><FontAwesomeIcon icon={faPlaneDeparture}  /> Airplane:  {emission.flight} Kg</dd>
               <dt className="sr-only">Train</dt>
-              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faTrain}  /> Train:  87.96 Kg</dd>
+              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faTrain}  /> Train:  {emission.train} Kg</dd>
               <dt className="sr-only">Bus</dt>
-              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faBus}  /> Bus:  77.96 Kg</dd>
+              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faBus}  /> Bus: {emission.bus} Kg</dd>
               <dt className="sr-only">Car</dt>
-              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faCar}  /> Car:  37.96 Kg</dd>
+              <dd className="mt-2 text-sm text-gray-500"><FontAwesomeIcon icon={faCar}  /> Car: {emission.car}  Kg</dd>
               <dt className="sr-only">Role</dt>
               <dd className="mt-3">
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
@@ -455,20 +476,18 @@ export default function Profile() {
           <div>
             <div className="-mt-px flex divide-x divide-gray-200">
               <div className="flex w-0 flex-1">
-                <a
-                  href={`mailto:${person.email}`}
+                <span
                   className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
                  NYC
-                </a>
+                </span>
               </div>
               <div className="-ml-px flex w-0 flex-1">
-                <a
-                  href={`tel:${person.telephone}`}
+                <span
                   className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
                   POS
-                </a>
+                </span>
               </div>
             </div>
           </div>
@@ -476,7 +495,13 @@ export default function Profile() {
       ))}
     </ul>
   
-        
+    <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
      <Footer/>
      </main>
      </>
