@@ -7,7 +7,12 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
 export default function CreateOffer(props:any) {
-
+  const createInsurance = ()=>{
+      props.setOpen(false)
+      const coverage = document.getElementById("coverage").value 
+      const premium = document.getElementById("premium").value
+      props.createInsurance(coverage,premium)
+  }
   return (
     <Transition.Root show={props.open} as={Fragment}>
       <Dialog as="div" className="relative z-10"  onClose={props.setOpen}>
@@ -68,7 +73,7 @@ export default function CreateOffer(props:any) {
                           className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
                         />
                          <label
-                          for="cost"
+                          for="premium"
                           className="mt-2 mb-2 block text-base font-medium text-black"
                         >
                           Cost
@@ -76,8 +81,8 @@ export default function CreateOffer(props:any) {
                         <input
                          
                           type="number"
-                          name="cost"
-                          id="cost"
+                          name="premium"
+                          id="premium"
                           required
                           
                           placeholder="15"
@@ -89,7 +94,8 @@ export default function CreateOffer(props:any) {
                   <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
-                    onClick={() => props.setOpen(false)}
+                    onClick={() => createInsurance()}
+
                   >
                     Create
                   </button>
@@ -97,7 +103,7 @@ export default function CreateOffer(props:any) {
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
                     onClick={() => props.setOpen(false)}
-                    
+ 
                   >
                     Cancel
                   </button>

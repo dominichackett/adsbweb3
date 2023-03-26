@@ -2,10 +2,11 @@ import Head from 'next/head'
 import Header from '@/components/Header/header'
 import Footer from '@/components/Footer/footer'
 import { useState,useEffect } from 'react'
-import { NFTStorage } from "nft.storage";
-//import Notification from '@/components/Notification/Notification'
+import Notification from '@/components/Notification/Notification'
 import { useContractRead,useSigner  } from 'wagmi'
 import { ethers } from 'ethers'
+import { insuranceContractAbi,insuranceContractAddress,insuranceUSDCAddress,usdcContractAbi } from '@/components/Contracts/contracts'
+
 import {
   useAccount 
  
@@ -13,7 +14,9 @@ import {
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
-
+  import { Polybase } from "@polybase/client";
+  import * as eth from '@polybase/eth'
+  import { format, fromUnixTime } from 'date-fns';
 import PurchaseOffer from '@/components/CreateOffer/purchaseoffer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoneyCheckDollar,faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons'
@@ -21,30 +24,41 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
 config.autoAddCss = false;
-const people = [
-    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
-,    { name: 'Lindsay Bill', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
-,    { name: 'Lindsay Lohan-Spears', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' }
 
-]
-const tabs = [
-    { name: 'My Account', href: '#', current: false },
-    { name: 'Company', href: '#', current: false },
-    { name: 'Team Members', href: '#', current: true },
-    { name: 'Billing', href: '#', current: false },
-  ]
 export default function Profile() {
     const {address} = useAccount()
-    const [selectedFile, setSelectedFile] = useState()
-    const [preview, setPreview] = useState()
-    const [isSaving,setIsSaving] = useState(false)
-    const [isLoading,setIsLoading]  = useState(true)
-    const [profileMetada,setProfileMetadata] = useState()
+   
     const { data: signer} = useSigner()
     const [openPurchaseOffer,setOpenPurchaseOffer] = useState(false)
+    const [offers,setOffers] = useState([])
+    const [refreshData,setRefreshData] = useState(new Date())
+    const [offerId,setOfferId]  = useState()
+    const [cost,setCost] = useState()
+    const [coverage,setCoverage] = useState()
 
   
-    
+    useEffect(()=>{
+      async function getOffers(){
+        const db = new Polybase({
+          defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+        });
+        const policyOffers = db.collection("PolicyOffer");
+
+        const records = await policyOffers.get()
+        //console.log(records)
+        let _data = []
+        records.data.forEach((record)=>{
+            _data.push(record.data)
+        })
+
+        setOffers(_data)
+        console.log(_data)
+
+      }
+
+      getOffers()
+  },[refreshData])
+
    
     // NOTIFICATIONS functions
       const [notificationTitle, setNotificationTitle] = useState();
@@ -55,139 +69,107 @@ export default function Profile() {
         setShow(false);
       };
   
-      const contractReadProfile = null /*useContractRead({
-        address:TicketManagerContractAddress,
-        abi: TicketManagerContractABI,
-        functionName: 'getProfile',
-        enabled:false,
-        args:[address]
-        
-      })*/
-    
-    const [nftstorage] = useState(
-      new NFTStorage({ token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY })
-    );
-  
-   //Get Profile
-   useEffect(()=>{
-     async function getProfile() {
-        const profile = await contractReadProfile.refetch()
-        console.log(profile);
-        if(profile.data)
-        {
-          const url = profile.data.replace("ipfs://" ," https://nftstorage.link/ipfs/")
-          fetch(url)
-          .then((response) => response.json())
-          .then(async (data) => { 
-            console.log(data)
-             document.getElementById("name").value = data.name
-             document.getElementById("description").innerHTML = data.description 
-             const imageUrl = data.image.replace("ipfs://" ," https://nftstorage.link/ipfs/")
-             const image =  await fetch(imageUrl)
-             if(image.ok)
-             {
-                
-                   setSelectedFile(await image.blob())
-                   // const objectUrl = URL.createObjectURL(await image.blob())
-                   //setPreview(objectUrl)
-             }   
-  
-          });
-        }
-  
-        setIsLoading(false)
-     }
-    // getProfile()
-   }
-   ,[])
-  
-  
+     
+   
     
   
   
-    // create a preview as a side effect, whenever selected file is changed
-   useEffect(() => {
-    if (!selectedFile) {
-        setPreview(undefined)
-        return
-    }
   
-    const objectUrl = URL.createObjectURL(selectedFile)
-    setPreview(objectUrl)
+ 
+    const purchaseInsurance = async (flight,from,to,departureTime,arrivalTime,offerId,_cost,_coverage)=> {
+      const insuredEvent = flight+" From: "+from+" To: "+to+" Departs: "+departureTime+" Arrives: "+arrivalTime
+     
+      const db = new Polybase({
+        defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+      });
   
-    // free memory when ever this component is unmounted
-    return () => URL.revokeObjectURL(objectUrl)
-  }, [selectedFile])
-  
-  const onSelectFile = (e) => {
-    if (!e.target.files || e.target.files.length === 0) {
-        setSelectedFile(undefined)
-        return
-    }
-  
-    // I've kept this example simple by using the first image instead of multiple
-    setSelectedFile(e.target.files[0])
-  }
-    const saveProfile = async (e)=>{
-       e.preventDefault()
-       setIsSaving(true)
-       setDialogType(3) //Information
-       setNotificationTitle("Uploading Profile Picture.")
-       setNotificationDescription("Saving Profile Picture.")
-       setShow(true)
+      db.signer(async (data: string) => {
+        // A permission dialog will be presented to the user
+        const accounts = await eth.requestAccounts();
       
-       const metadata = await nftstorage.store({
-        name: document.getElementById("name").value,
-         description: document.getElementById("description").value,
-        image: selectedFile
-        
+        // If there is more than one account, you may wish to ask the user which
+        // account they would like to use
+        const account = accounts[0];
+        const sig = await eth.sign(data, account);
+        console.log(account)
+      
+        return { h: "eth-personal-sign", sig };
       })
-      setShow(false)
-      if(!metadata){
-         setDialogType(2) //Error
-         setNotificationTitle("Save Profile Error.")
-         setNotificationDescription("Error uploading profile picture.")
-         setShow(true)
-         return
-      }
-  
-      setProfileMetadata(metadata.url)
+     
+      const policyOffer = db.collection("PolicyOffer");
+      const policy = db.collection ("Policy")
       try {
+       
+
+        const usdcContract  = new ethers.Contract(insuranceUSDCAddress,usdcContractAbi,signer)
         const contract = new ethers.Contract(
-          TicketManagerContractAddress,
-          TicketManagerContractABI,
+          insuranceContractAddress,
+          insuranceContractAbi,
           signer
         );
-        //alert(JSON.stringify(myPolicy))
-        let transaction = await contract.setProfile(
-          metadata.url,{gasLimit:3000000}
-        );
-  
-        await transaction.wait();
-            setDialogType(1) //Success
-            setNotificationTitle("Save Profile")
-            setNotificationDescription("Profile save successfully.")
-            setShow(true)
-            setIsSaving(false)
-            setProfileMetadata(undefined)
+      
+        const premium  =  ethers.utils.parseUnits(_cost.toString(),6)
+        const insuredEventBytes = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(insuredEvent));
+
+        let tx = await usdcContract.callStatic.approve(insuranceContractAddress ,premium,{
+          gasLimit: 3000000})
+          
         
-      } catch (_error) {
-        setDialogType(2) //Error
-        setNotificationTitle("Save Profile Error")
-  
-        setNotificationDescription(
-          _error.data ? _error.data.message : _error.message
-        );
-        setShow(true)
-        setIsSaving(false)
-        setProfileMetadata(undefined)
-  
-   
-      }
+          let tx1 = await usdcContract.approve( insuranceContractAddress,premium,{
+            gasLimit: 3000000})
+         
+            await  tx1.wait()
+            let tx3 = await contract.callStatic.purchasePolicy(parseInt(offerId),insuredEventBytes,{
+              gasLimit: 3000000}) 
+
+         let transaction = await contract.purchasePolicy(parseInt(offerId),insuredEventBytes,{
+          gasLimit: 3000000})
+          const receipt = await transaction.wait(); // wait for the transaction to be mined
+          const y = await policy.create([receipt.transactionHash,flight,from,to,new Date(arrivalTime).getTime()
+            ,new Date(departureTime).getTime(),parseInt(_coverage),parseInt(_cost)
+            ,"Active",new Date().toString(),address,parseInt(offerId)])
+          const x = await policyOffer.record(offerId).call("setStatus",["Active"])
+
+          await transaction.wait();
+            setDialogType(1) //Success
+            setNotificationTitle("Purchase Policy")
+            setNotificationDescription("Sucessfully purchased policy.")
+            setShow(true)
+            setRefreshData(new Date())
+            
+            
+        
+      } catch (error) {
     
-    } 
-    const purchaseOffer = ()=>{
-        setOpenPurchaseOffer(true)
+        
+        if (error.code === 'TRANSACTION_REVERTED') {
+          console.log('Transaction reverted');
+          let revertReason = ethers.utils.parseRevertReason(error.data);
+          setNotificationDescription(revertReason);
+        }  else if (error.code === 'ACTION_REJECTED') {
+        setNotificationDescription('Transaction rejected by user');
+      }else {
+       console.log(error)
+       //const errorMessage = ethers.utils.revert(error.reason);
+        setNotificationDescription(`Transaction failed with error: ${error.reason}`);
+      
+    }
+        setDialogType(2) //Error
+        setNotificationTitle("Error Purchasing Policy")
+    
+        setShow(true)
+    
+    
+      }
+    }
+
+
+    const purchaseOffer = (_id,_cost,_coverage)=>{
+         setOfferId(_id)
+         setCost(_cost)
+         setCoverage(_coverage)
+
+         setOpenPurchaseOffer(true)
        } 
     
        const closePurchaseOffer = ()=>{
@@ -226,25 +208,26 @@ export default function Profile() {
          <div className="m-6">
            
           <ul role="list" className="p-4 bg-gray-100 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {people.map((person) => (
+      {offers.map((offer) => (
         <li
-          key={person.email}
+          key={offer.id}
           className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
         >
           <div className="flex flex-1 flex-col p-8">
             <h1><span className='text-4xl text-green-600 justify-items-center'><FontAwesomeIcon icon={faMoneyCheckDollar}  /></span></h1>
 
-            <h3 className="mt-6 text-4xl font-bold text-gray-900">$3000</h3>
+            <h3 className="mt-6 text-4xl font-bold text-gray-900">${offer.coverage}</h3>
             <dl className="mt-1 flex flex-grow flex-col justify-between">
               <dt className="sr-only">Cost</dt>
-              <dd className="text-sm text-gray-900">Cost: $15</dd>
+              <dd className="text-sm text-gray-900">Cost: ${offer.cost}</dd>
               <dt className="sr-only">Date</dt>
               <dd className="mt-3">
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                  12/12/2022
+                {format(offer.date, 'E do LLL Y hh:mm a')}
+
                 </span>
               </dd>
-              <dd className="text-sm text-gray-900">Status: Offered</dd>
+              <dd className="text-sm text-gray-900">Status: {offer.status}</dd>
 
             </dl>
           </div>
@@ -253,7 +236,7 @@ export default function Profile() {
               
               <div className="-ml-px flex w-0 flex-1">
                 <span
-                                onClick={purchaseOffer}
+                                onClick={()=>purchaseOffer(offer.id,offer.cost,offer.coverage)}
 
                   className="cursor-pointer relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
@@ -271,8 +254,14 @@ export default function Profile() {
       </div>
           </section>
      
-  
-          <PurchaseOffer open={openPurchaseOffer} setOpen={closePurchaseOffer}/>
+          <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
+          <PurchaseOffer open={openPurchaseOffer} id={offerId} cost={cost} coverage={coverage} setOpen={closePurchaseOffer} purchaseInsurance={purchaseInsurance}/>
 
      <Footer/>
      </main>

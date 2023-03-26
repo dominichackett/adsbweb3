@@ -8,6 +8,17 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 
 export default function PurchaseOffer(props:any) {
 
+  const purchaseInsurance = ()=>
+  {
+     const flight = document.getElementById("flightNumber").value
+      const from = document.getElementById("from").value 
+      const to = document.getElementById("to").value 
+      const arrivalTime  =  document.getElementById("arrivalTime").value 
+      const departureTime = document.getElementById("departureTime").value 
+      props.purchaseInsurance(flight,from,to,departureTime,arrivalTime,props.id,props.cost,props.coverage)
+     props.setOpen(false)
+  }
+
   return (
     <Transition.Root show={props.open} as={Fragment}>
       <Dialog as="div" className="relative z-6"  onClose={props.setOpen}>
@@ -151,7 +162,7 @@ export default function PurchaseOffer(props:any) {
                   <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
-                    onClick={() => props.setOpen(false)}
+                    onClick={() => purchaseInsurance()}
                   >
                     Purchase
                   </button>

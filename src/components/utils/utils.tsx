@@ -1,5 +1,5 @@
 import { element } from '@rainbow-me/rainbowkit/dist/css/reset.css';
-//import 'leaflet-rotatedmarker';
+import 'leaflet-rotatedmarker';
 import { Polybase } from "@polybase/client";
 import wagmiCore from '@wagmi/core'
 import wagmiAlchemy from "@wagmi/core/providers/alchemy"
@@ -14,7 +14,7 @@ export const getAW3Data = async (verified:boolean,feeders:any)=> {
     });
       const flightDataCollection= db.collection("FlightData");
       const time = new Date()
-      time.setSeconds(time.getSeconds() - 5);
+      time.setSeconds(time.getSeconds()-5);
 
       const flightData= await flightDataCollection.where("time",">=",time.getTime()).get()//where("name","==","Dominic Hackett").get();
       const response = await fetch('http://localhost:3000/images/aircraft/A320.svg');
@@ -43,9 +43,17 @@ export const getAW3Data = async (verified:boolean,feeders:any)=> {
     // Create a data URI from the modified SVG data
     const encodedData = btoa(modifiedData);
     const dataURL = `data:image/svg+xml;base64,${encodedData}`;  
-    
-       const  _address  = ethers.utils.computeAddress(element.publicKey)
-   //    if(verified== false || (verified == true && feeders[_address]== true))
+   
+const xBuffer = Buffer.from(element.publicKey.x, 'base64');
+const yBuffer = Buffer.from(element.publicKey.y, 'base64');
+
+const publicKey = Buffer.concat([Buffer.from([0x04]), xBuffer, yBuffer]);
+
+const address = ethers.utils.computeAddress(publicKey);
+console.log(address)
+
+      console.log(feeders)
+       if(verified== false || (verified == true && feeders[address]== true))
         return {
           position: [element.lattitude,  element.longitude],
           rotation:element.heading,

@@ -68,7 +68,7 @@ export default function Tracking() {
        flights = await getAW3Data(source.current == 2 ? false:true,verifedFeeders) 
        }catch(error)
        {
-         
+          console.log(error) 
        } 
      }
      // console.log(flights)

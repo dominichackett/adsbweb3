@@ -6,9 +6,9 @@ const scroll =  534353
 const filecoin =3141
 const goerli = 5
 
-
-export const insuranceContractAddress = "0xF40c0B13d395AeA96f053c8f886A3cCE29cC7623"
-export const insuranceContractAbi = [
+export const insuranceUSDCAddress = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F';
+export const insuranceContractAddress = "0xF52AA331c2f629Ee4E5922A53763940086354202"
+export const insuranceContractAbi =[
 	{
 		"inputs": [
 			{
@@ -131,13 +131,7 @@ export const insuranceContractAbi = [
 			}
 		],
 		"name": "createPolicy",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -229,6 +223,12 @@ export const insuranceContractAbi = [
 				"internalType": "enum FlightInsurance.State",
 				"name": "status",
 				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
 			}
 		],
 		"name": "PolicyCreated",
@@ -291,6 +291,12 @@ export const insuranceContractAbi = [
 				"internalType": "enum FlightInsurance.State",
 				"name": "status",
 				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
 			}
 		],
 		"name": "PolicyPurcahsed",
@@ -362,9 +368,9 @@ export const insuranceContractAbi = [
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "assertionId",
-				"type": "bytes32"
+				"internalType": "uint256",
+				"name": "policyId",
+				"type": "uint256"
 			}
 		],
 		"name": "settlePolicy",
@@ -432,7 +438,6 @@ export const insuranceContractAbi = [
 		"type": "function"
 	}
 ]
-
 export const adbsweb3ContractAddress = new Map([[gnosis,"0x8170d274D3b905ca7E6C06C9cA3667fD26011C93"]
 ,[zkEVM,"0x86feBD95b38402C640c367c83582a9dC9219f053"]
 ,[optimismGoerli,"0x86feBD95b38402C640c367c83582a9dC9219f053"]

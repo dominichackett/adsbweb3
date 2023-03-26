@@ -8,6 +8,8 @@ import { useSigner ,useChainId } from 'wagmi'
 import Notification from '@/components/Notification/Notification'
 import { Polybase } from "@polybase/client";
 import * as eth from '@polybase/eth'
+import { format, fromUnixTime } from 'date-fns';
+
 import {
   useAccount 
  
@@ -28,24 +30,7 @@ const people = [
 
 ]
 export default function Carbon() {
-  const db = new Polybase({
-    defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
-  });
-  useEffect(()=>{
-    // Add signer fn
- db.signer(async (data: string) => {
-   // A permission dialog will be presented to the user
-   const accounts = await eth.requestAccounts();
- 
-   // If there is more than one account, you may wish to ask the user which
-   // account they would like to use
-   const account = accounts[0];
-   const sig = await eth.sign(data, account);
-   console.log(account)
- 
-   return { h: "eth-personal-sign", sig };
- })
- },[])
+
  
   const chain = useChainId()
     const [refreshData,setRefreshData] = useState(new Date())
@@ -64,6 +49,8 @@ export default function Carbon() {
     const [car,setCar] = useState()
     const [flightDate,setFlightDate] = useState()
    const [passengers,setPassengers] = useState()
+   const [_from,setFrom] = useState()
+   const [_to,setTo] = useState()
     // NOTIFICATIONS functions
       const [notificationTitle, setNotificationTitle] = useState();
       const [notificationDescription, setNotificationDescription] = useState();
@@ -111,6 +98,8 @@ export default function Carbon() {
        
 
        setPassengers(_passengers)
+       setTo(to)
+       setFrom(from)
        
      
       }
@@ -120,7 +109,23 @@ export default function Carbon() {
       const saveCarbonTracker = async ()=>
       {
          
+         const db = new Polybase({
+          defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+        });
+ 
+        db.signer(async (data: string) => {
+          // A permission dialog will be presented to the user
+          const accounts = await eth.requestAccounts();
         
+          // If there is more than one account, you may wish to ask the user which
+          // account they would like to use
+          const account = accounts[0];
+          const sig = await eth.sign(data, account);
+          console.log(account)
+        
+          return { h: "eth-personal-sign", sig };
+        })
+       
         const cTracker = db.collection("CarbonTracker");
 
          
@@ -140,7 +145,9 @@ export default function Carbon() {
           
             const receipt = await transaction.wait();
             console.log(receipt)  
-          const recordData = await cTracker.create([ receipt.transactionHash,distance.toString(),flight.toString(),train.toString(),bus.toString(),car.toString(),flightDate.getTime(),from,to,address,parseInt(passengers)]);
+          const recordData = await cTracker.create([ receipt.transactionHash,distance.toString()
+            ,flight.toString(),train.toString(),bus.toString(),car.toString(),flightDate.getTime(),_from,_to
+            ,address,parseInt(passengers)]);
  
               setDialogType(1) //Success
               setNotificationTitle("Carbon Tracker")
@@ -178,6 +185,9 @@ export default function Carbon() {
       
     useEffect(()=>{
         async function getEmissions(){
+          const db = new Polybase({
+            defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
+          });
           const cTracker = db.collection("CarbonTracker");
 
           const records = await cTracker.get()
@@ -468,7 +478,7 @@ export default function Carbon() {
               <dt className="sr-only">Role</dt>
               <dd className="mt-3">
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                  12/12/2023
+         {format(emission.date, 'E do LLL Y hh:mm a')}
                 </span>
               </dd>
             </dl>
@@ -479,14 +489,14 @@ export default function Carbon() {
                 <span
                   className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
-                 NYC
+                 {emission?.from}
                 </span>
               </div>
               <div className="-ml-px flex w-0 flex-1">
                 <span
                   className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                 >
-                  POS
+                  {emission?.to}
                 </span>
               </div>
             </div>
