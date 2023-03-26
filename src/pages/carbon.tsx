@@ -112,7 +112,9 @@ export default function Carbon() {
          const db = new Polybase({
           defaultNamespace: "pk/0x86b28d5590a407110f9cac95fd554cd4fc5bd611d6d88aed5fdbeee519f5792411d128cabf54b3035c2bf3f14c50e37c3cfc98523c2243b42cd394da42ca48f8/adsbweb3",
         });
- 
+       console.log(chain)
+       console.log(distance,flight,train,bus,car,flightDate.getTime())
+     
         db.signer(async (data: string) => {
           // A permission dialog will be presented to the user
           const accounts = await eth.requestAccounts();
@@ -137,13 +139,14 @@ export default function Carbon() {
             signer
           );
           
-              let tx = await contract.callStatic.trackCarbonEmissons( distance,flight,train,bus,car,flightDate.getTime(),{
+            let tx = await contract.callStatic.trackCarbonEmissons( distance,flight,train,bus,car,flightDate.getTime(),{
                 gasLimit: 3000000})   
         
                 let transaction = await contract.trackCarbonEmissons( distance,flight,train,bus,car,flightDate.getTime(),{
             gasLimit: 3000000})   
           
             const receipt = await transaction.wait();
+            alert("test")
             console.log(receipt)  
           const recordData = await cTracker.create([ receipt.transactionHash,distance.toString()
             ,flight.toString(),train.toString(),bus.toString(),car.toString(),flightDate.getTime(),_from,_to
